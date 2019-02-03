@@ -1,15 +1,26 @@
 <template>
   <div id="app">
-    <router-link :to="{name: 'signup'}">sign up</router-link>
-    <router-link :to="{name: 'login'}">login</router-link>
-    <router-link :to="{name: 'home'}">home</router-link>
     <router-view />
   </div>
 </template>
 
 <script>
-export default {
-  name: 'app'
+import { Component, Vue } from 'vue-property-decorator'
+import FirebaseService from '@/services/firebase'
+
+@Component({
+  name: 'App'
+  })
+/**
+ * Login Page
+ */
+export default class App extends Vue {
+  isUserSignedIn () {
+    console.log('asd', FirebaseService.getUser())
+  }
+  mounted () {
+    this.isUserSignedIn()
+  }
 }
 </script>
 

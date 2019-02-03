@@ -3,19 +3,11 @@ import './plugins/vuetify'
 import firebase from 'firebase/app'
 import App from '@/App.vue'
 import router from '@/router'
+import firebaseConfig from '@/../config/firebase'
 
 Vue.config.productionTip = false
 
-// Initialize Firebase
-const config = {
-  apiKey: "AIzaSyAijnAIQx2rKxbfHtEsCCRQ0z9P_40m748",
-  authDomain: "shared-duties.firebaseapp.com",
-  databaseURL: "https://shared-duties.firebaseio.com",
-  projectId: "shared-duties",
-  storageBucket: "shared-duties.appspot.com",
-  messagingSenderId: "860045022152"
-}
-firebase.initializeApp(config)
+firebase.initializeApp(firebaseConfig)
 
 new Vue({
   router,

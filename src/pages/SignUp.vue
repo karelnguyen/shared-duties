@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <v-layout column wrap justify-center align-center align-content-center>
-      <h1>Sign up</h1>
+      <h1>Sign up page</h1>
       <v-flex mt-5>
         <v-text-field
           v-model="email"
@@ -20,11 +20,11 @@
           class="sign-up-input"
         ></v-text-field>
       </v-flex>
+      <v-btn color="blue" dark round @click="signUp(email, password)">Sign up</v-btn>
       <p>
-        Already signed up? <v-btn flat @click="$router.push({name: 'login'})">Sign in</v-btn flat>
+        Already signed up? <v-btn flat @click="$router.push({name: 'login'})">Sign in</v-btn>
       </p>
     </v-layout>
-    <v-btn color="blue" dark @click="signUp(email, password)">Sign up</v-btn>
   </v-container>
 </template>
 
@@ -42,6 +42,12 @@ export default class SignUp extends Vue {
   email = ''
   password = ''
 
+  /**
+   * Sign up user with email and password
+   * @param  {String} email
+   * @param  {String} password
+   * @return {Promise}
+   */
   signUp (email, password) {
     FirebaseService.registerUser(email, password)
       .then(() => {
@@ -49,7 +55,7 @@ export default class SignUp extends Vue {
         this.$router.replace('/login')
       })
       .catch(err => {
-        console.log(err)
+        alert(err.message)
       })
   }
 }

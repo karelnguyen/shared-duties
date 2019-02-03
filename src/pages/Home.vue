@@ -1,6 +1,8 @@
 <template>
-  <div class="flash-wrap">
-    HOME PICO
+  <div>
+    <h1>Home</h1>
+    <v-btn flat @click="$router.push({name: 'login'})">Sign in</v-btn>
+    <v-btn flat @click="$router.push({name: 'signup'})">Sign up</v-btn>
   </div>
 </template>
 
