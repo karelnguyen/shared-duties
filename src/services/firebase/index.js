@@ -69,7 +69,7 @@ function writeUserData (userId, name, email) {
  * Post group
  * @param  {String} groupId
  * @param  {String} name
- * @param  {String} owner
+ * @param  {String} owner uid
  * @param  {Array}  [tasks=[]]
  * @return {Promise}
  */

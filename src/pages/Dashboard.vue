@@ -22,6 +22,7 @@
       <v-btn class="mt-5" color="primary" @click="showDialog = true">Add group</v-btn>
       <DialogGroup
         v-model="showDialog"
+        :editMode="false"
       />
     </v-layout>
   </v-container>

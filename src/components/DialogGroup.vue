@@ -10,21 +10,26 @@
           class="headline grey lighten-2"
           primary-title
         >
-          Privacy Policy
+          <span class="mr-1" v-if="!type">Add</span> <span v-else>Edit</span>Group
         </v-card-title>
 
         <v-card-text>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+          <v-text-field
+            v-model="formData.name"
+            name="name"
+            label="name"
+          ></v-text-field>
         </v-card-text>
 
         <v-divider></v-divider>
 
         <v-card-actions>
           <v-spacer></v-spacer>
+          <v-btn flat @click="closeDialog">Close</v-btn>
           <v-btn
             color="primary"
             flat
-            @click="closeDialog"
+            @click="confirmDialog()"
           >
             I accept
           </v-btn>
@@ -37,6 +42,7 @@
 <script>
 // import { Prop, Emit, Watch, Component, Vue } from 'vue-property-decorator'
 import { Prop, Component, Watch, Vue } from 'vue-property-decorator'
+import FirebaseService from '@/services/firebase'
 
 @Component({
   name: 'DialogGroup'
@@ -47,6 +53,10 @@ import { Prop, Component, Watch, Vue } from 'vue-property-decorator'
 export default class DialogGroup extends Vue {
   @Prop(String) type
   @Prop({ default: false }) value
+
+  formData = {
+    name: ''
+  }
 
   showDialog = false
 
@@ -64,6 +74,23 @@ export default class DialogGroup extends Vue {
     this.$emit('input', this.showDialog)
   }
 
+  confirmDialog () {
+    const groupId = this.generateRandomId()
+    const ownerUid = localStorage.getItem('uid')
+
+    FirebaseService.createGroup(groupId, this.formData.name, ownerUid)
+      .then(() => {
+        alert(`Group ${this.formData.name} succesfully added`)
+        this.closeDialog()
+      })
+      .catch(err => {
+        alert(err.message)
+      })
+  }
+
+  /**
+   * Watcher for value
+   */
   @Watch('value')
   initData () {
     this.showDialog = this.value
