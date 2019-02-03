@@ -1,7 +1,7 @@
 <template>
   <v-container>
 
-    <v-toolbar app absolute>
+    <v-toolbar app absolute flat color="white">
       <v-toolbar-title>Shared Duties</v-toolbar-title>
       <v-spacer></v-spacer>
       <span class="nav-email">{{userEmailFromLocalStorage}}</span>
@@ -18,12 +18,22 @@
       <v-btn color="error" @click="signOut">sign out</v-btn>
     </v-toolbar>
 
-    <v-layout row wrap>
-      <v-btn class="mt-5" color="primary" @click="showDialog = true">Add group</v-btn>
-      <DialogGroup
-        v-model="showDialog"
-        :editMode="false"
-      />
+    <v-layout row wrap justify-space-around class="mt-5">
+      <v-flex xs6>
+        <v-card>
+          Groups
+          <v-btn class="mt-5" color="primary" @click="showDialog = true">Add group</v-btn>
+          <DialogGroup
+          v-model="showDialog"
+          :editMode="false"
+          />
+        </v-card>
+      </v-flex>
+      <v-flex xs5>
+        <v-card>
+          Profile
+        </v-card>
+      </v-flex>
     </v-layout>
   </v-container>
 </template>

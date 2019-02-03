@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    Profile
+    Groups
   </v-container>
 </template>
 
@@ -8,12 +8,12 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component({
-  name: 'Profile'
+  name: 'Groups'
 })
 /**
- * Profile Component
+ * Groups Component
  */
-export default class Profile extends Vue {
+export default class Groups extends Vue {
 }
 
 </script>
