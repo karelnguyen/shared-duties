@@ -1,9 +1,9 @@
 <template>
-  <div>
-    <h1>Home</h1>
+  <v-layout column wrap justify-center align-center class="home-page">
+    <h1 class="display-4">Shared Duties</h1>
     <v-btn flat @click="$router.push({name: 'login'})">Sign in</v-btn>
     <v-btn flat @click="$router.push({name: 'signup'})">Sign up</v-btn>
-  </div>
+  </v-layout>
 </template>
 
 <script>
@@ -19,4 +19,8 @@ export default class Home extends Vue {}
 </script>
 
 <style lang="stylus" scoped>
+.home-page {
+  height: 100vh
+  weight: 100vw
+}
 </style>

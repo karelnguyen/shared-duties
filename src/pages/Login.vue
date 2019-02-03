@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <v-layout column wrap justify-center align-center align-content-center>
+  <v-container justify-center align-center align-content-center>
+    <v-layout column wrap justify-center align-center align-content-center class="login-area">
       <h1>Login page</h1>
       <v-flex mt-5>
         <v-text-field
@@ -61,5 +61,8 @@ export default class Login extends Vue {
 <style lang="stylus" scoped>
   .login-input {
     width: 300px
+  }
+  .login-area {
+    margin-top: 200px
   }
 </style>

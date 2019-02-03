@@ -1,5 +1,6 @@
 import firebase from 'firebase/app'
-require('firebase/auth')
+import 'firebase/auth'
+import 'firebase/database'
 
 /*
   Firebase authentication service
@@ -41,11 +42,53 @@ function getUser () {
   return firebase.auth().currentUser
 }
 
+/**
+ * Users service
+ */
+
+/**
+ * Post user to database
+ * @param  {String} userId
+ * @param  {String} name
+ * @param  {String} email
+ * @return {Promise}
+ */
+function writeUserData (userId, name, email) {
+  return firebase.database().ref('users/' + userId).set({
+    uid: userId,
+    username: name,
+    email: email
+  })
+}
+
+/**
+ * Groups service
+ */
+
+/**
+ * Post group
+ * @param  {String} groupId
+ * @param  {String} name
+ * @param  {String} owner
+ * @param  {Array}  [tasks=[]]
+ * @return {Promise}
+ */
+function createGroup (groupId, name, owner, tasks = []) {
+  return firebase.database().ref('groups/' + groupId).set({
+    groupId: groupId,
+    name: name,
+    owner: owner,
+    tasks: tasks
+  })
+}
+
 const FirebaseService = {
   registerUser,
   signIn,
   signOut,
-  getUser
+  getUser,
+  writeUserData,
+  createGroup
 }
 
 export default FirebaseService

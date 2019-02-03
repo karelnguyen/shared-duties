@@ -1,8 +1,15 @@
 <template>
   <v-container>
-    <v-layout column wrap justify-center align-center align-content-center>
+    <v-layout column wrap justify-center align-center align-content-center class="sign-up-area">
       <h1>Sign up page</h1>
       <v-flex mt-5>
+        <v-text-field
+          v-model="username"
+          name="username"
+          label="username"
+          outline
+          class="sign-up-input"
+        ></v-text-field>
         <v-text-field
           v-model="email"
           name="email"
@@ -39,6 +46,7 @@ import FirebaseService from '@/services/firebase'
  * Sign Up Page
  */
 export default class SignUp extends Vue {
+  username = ''
   email = ''
   password = ''
 
@@ -50,7 +58,8 @@ export default class SignUp extends Vue {
    */
   signUp (email, password) {
     FirebaseService.registerUser(email, password)
-      .then(() => {
+      .then(response => {
+        this.addUserToDb(response.user.uid, this.username, this.email)
         alert('user added')
         this.$router.replace('/login')
       })
@@ -58,11 +67,24 @@ export default class SignUp extends Vue {
         alert(err.message)
       })
   }
+
+  /**
+   * Add user to firebase db
+   * @param {String} uid
+   * @param {String} username
+   * @param {String} email
+   */
+  addUserToDb (uid, username, email) {
+    FirebaseService.writeUserData(uid, username, email)
+  }
 }
 </script>
 
 <style lang="stylus" scoped>
   .sign-up-input {
     width: 300px
+  }
+  .sign-up-area {
+    margin-top: 200px
   }
 </style>

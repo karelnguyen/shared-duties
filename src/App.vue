@@ -1,28 +1,37 @@
 <template>
-  <div id="app">
+  <v-app id="app">
     <router-view />
-  </div>
+  </v-app>
 </template>
 
 <script>
 import { Component, Vue } from 'vue-property-decorator'
+import { mapActions } from 'vuex'
 import firebase from 'firebase/app'
-require('firebase/auth')
+import 'firebase/auth'
 
 @Component({
-  name: 'App'
+  name: 'App',
+  methods: mapActions(['setUserEmail'])
 })
 /**
  * App Page
  */
 export default class App extends Vue {
-  mounted () {
+  /**
+   * On component creation
+   */
+  created () {
+    /*
+      Auth observer checks, if user is signed in, otherwise it will redirect to Home Page
+     */
     firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        // User is signed in.
-      } else {
-        // No user is signed in.
+      if (!user) {
         this.$router.replace({ name: 'home' })
+      } else {
+        this.setUserEmail(user.email)
+        localStorage.setItem('userEmail', user.email)
+        localStorage.setItem('uid', user.uid)
       }
     })
   }
@@ -36,6 +45,5 @@ export default class App extends Vue {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
