@@ -66,6 +66,13 @@ function writeUserData (userId, name, email) {
  */
 
 /**
+ * Groups reference
+ */
+function groupsRef () {
+  return firebase.database().ref('groups')
+}
+
+/**
  * Post group
  * @param  {String} groupId
  * @param  {String} name
@@ -73,12 +80,12 @@ function writeUserData (userId, name, email) {
  * @param  {Array}  [tasks=[]]
  * @return {Promise}
  */
-function createGroup (groupId, name, owner, tasks = []) {
+function createGroup (groupId, name, owner, members = [owner]) {
   return firebase.database().ref('groups/' + groupId).set({
     groupId: groupId,
     name: name,
     owner: owner,
-    tasks: tasks
+    members: members
   })
 }
 
@@ -88,7 +95,8 @@ const FirebaseService = {
   signOut,
   getUser,
   writeUserData,
-  createGroup
+  createGroup,
+  groupsRef
 }
 
 export default FirebaseService

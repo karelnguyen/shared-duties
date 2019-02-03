@@ -15,23 +15,70 @@
           </v-list>
         </v-menu>
       </v-toolbar-items>
-      <v-btn color="error" @click="signOut">sign out</v-btn>
+      <v-btn color="black" dark @click="signOut">sign out</v-btn>
     </v-toolbar>
 
     <v-layout row wrap justify-space-around class="mt-5">
       <v-flex xs6>
-        <v-card>
-          Groups
-          <v-btn class="mt-5" color="primary" @click="showDialog = true">Add group</v-btn>
+        <v-card flat min-height="200">
+          <v-layout row wrap align-content-center align-center justify-center>
+            <v-card-text
+              class="mt-3"
+              v-if="groupsLoading"
+            >
+              <v-progress-circular
+              class="mt-5"
+              indeterminate
+              color="primary"
+              ></v-progress-circular>
+            </v-card-text>
+          <v-flex v-else>
+            <v-card-title
+            class="headline lighten-2"
+            primary-title
+            >
+            Groups
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text>
+            <div>
+              Groups that I own:
+            </div>
+            <div v-for="(oGroups, key) in ownGroups" :key="key">
+              <div>
+                {{oGroups.name}}
+              </div>
+            </div>
+            <div>
+              Groups that I am a member of:
+            </div>
+            <div v-for="(fGroups, key) in foreignGroups" :key="key">
+              <div>
+                {{fGroups.name}}
+              </div>
+            </div>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn class="mt-5" color="primary" @click="showDialog = true">Add group</v-btn>
+          </v-card-actions>
           <DialogGroup
-          v-model="showDialog"
-          :editMode="false"
+            v-model="showDialog"
+            :editMode="false"
           />
+        </v-flex>
+          </v-layout>
         </v-card>
       </v-flex>
       <v-flex xs5>
-        <v-card>
-          Profile
+        <v-card flat>
+          <v-card-title
+            class="headline lighten-2"
+            primary-title
+          >
+            Profile
+          </v-card-title>
+          <v-divider></v-divider>
         </v-card>
       </v-flex>
     </v-layout>
@@ -55,11 +102,55 @@ import DialogGroup from '@/components/DialogGroup'
 export default class Dashboard extends Vue {
   userEmailFromLocalStorage = localStorage.getItem('userEmail')
   showDialog = false
+  ownGroups = []
+  foreignGroups = []
+  groupsLoading = false
   /**
    * Sign out
    */
   signOut () {
     FirebaseService.signOut()
+  }
+
+  /**
+   * Mounted
+   */
+  mounted () {
+    this.getGroups()
+  }
+
+  /**
+   * Get all groups
+   * @return {Promise}
+   */
+  getGroups () {
+    this.groupsLoading = true
+    return FirebaseService.groupsRef().on('value', snapshot => {
+      let uid = localStorage.getItem('uid')
+      let data = snapshot.val()
+      let OGData = []
+      let FGData = []
+
+      for (let group in data) {
+        /**
+        * Groups that user owns
+        */
+        if (uid === data[group].owner) {
+          OGData.push(data[group])
+        }
+
+        /**
+        * Groups that user is member of
+        */
+        if (data[group].members.includes(uid) && uid !== data[group].owner) {
+          FGData.push(data[group])
+        }
+      }
+      
+      this.ownGroups = OGData
+      this.foreignGroups = FGData
+      this.groupsLoading = false
+    })
   }
 }
 

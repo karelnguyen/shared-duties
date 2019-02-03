@@ -38,8 +38,7 @@
 </template>
 
 <script>
-// import { Prop, Emit, Watch, Component, Vue } from 'vue-property-decorator'
-import { Prop, Component, Watch, Vue } from 'vue-property-decorator'
+import { Prop, Component, Emit, Watch, Vue } from 'vue-property-decorator'
 import FirebaseService from '@/services/firebase'
 
 @Component({
@@ -72,6 +71,10 @@ export default class DialogGroup extends Vue {
     this.$emit('input', this.showDialog)
   }
 
+  /**
+   * Confirm dialog
+   * @return {Promise}
+   */
   confirmDialog () {
     const groupId = this.generateRandomId()
     const ownerUid = localStorage.getItem('uid')
