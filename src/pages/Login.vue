@@ -32,7 +32,7 @@ import FirebaseService from '@/services/firebase'
 
 @Component({
   name: 'Login'
-  })
+})
 /**
  * Login Page
  */

@@ -6,20 +6,25 @@
 
 <script>
 import { Component, Vue } from 'vue-property-decorator'
-import FirebaseService from '@/services/firebase'
+import firebase from 'firebase/app'
+require('firebase/auth')
 
 @Component({
   name: 'App'
-  })
+})
 /**
- * Login Page
+ * App Page
  */
 export default class App extends Vue {
-  isUserSignedIn () {
-    console.log('asd', FirebaseService.getUser())
-  }
   mounted () {
-    this.isUserSignedIn()
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        // User is signed in.
+      } else {
+        // No user is signed in.
+        this.$router.replace({ name: 'home' })
+      }
+    })
   }
 }
 </script>

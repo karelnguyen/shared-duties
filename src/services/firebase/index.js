@@ -34,14 +34,6 @@ function signOut () {
 }
 
 /**
- * Check if user is signed in
- * @return {Boolean}
- */
-function isSignIn () {
-  firebase.auth().onAuthStateChanged(user => user)
-}
-
-/**
  * Get current user data
  * @return {Object}
  */
@@ -53,7 +45,6 @@ const FirebaseService = {
   registerUser,
   signIn,
   signOut,
-  isSignIn,
   getUser
 }
 

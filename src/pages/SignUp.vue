@@ -34,7 +34,7 @@ import FirebaseService from '@/services/firebase'
 
 @Component({
   name: 'SignUp'
-  })
+})
 /**
  * Sign Up Page
  */
