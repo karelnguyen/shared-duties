@@ -18,6 +18,9 @@ Vue.config.productionTip = false
  */
 firebase.initializeApp(firebaseConfig)
 /* eslint-disable */
+/*
+  Initializing db
+ */
 const db = firebase.database().ref()
 db.child('/users')
 db.child('/groups')

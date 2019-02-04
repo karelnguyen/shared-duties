@@ -4,6 +4,7 @@ import Home from '@/pages/Home.vue'
 import SignUp from '@/pages/SignUp.vue'
 import Login from '@/pages/Login.vue'
 import Dashboard from '@/pages/Dashboard.vue'
+import GroupDetail from '@/pages/GroupDetail.vue'
 
 Vue.use(Router)
 
@@ -33,6 +34,11 @@ export default new Router({
       path: '/dashboard',
       name: 'dashboard',
       component: Dashboard
+    },
+    {
+      path: '/groups/:groupName',
+      name: 'groupDetail',
+      component: GroupDetail
     }
   ]
 })

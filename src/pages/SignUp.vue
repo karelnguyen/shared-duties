@@ -4,6 +4,20 @@
       <h1>Sign up page</h1>
       <v-flex mt-5>
         <v-text-field
+          v-model="firstName"
+          name="firstName"
+          label="first name"
+          outline
+          class="sign-up-input"
+        ></v-text-field>
+        <v-text-field
+          v-model="lastName"
+          name="lastName"
+          label="last name"
+          outline
+          class="sign-up-input"
+        ></v-text-field>
+        <v-text-field
           v-model="username"
           name="username"
           label="username"
@@ -46,6 +60,8 @@ import FirebaseService from '@/services/firebase'
  * Sign Up Page
  */
 export default class SignUp extends Vue {
+  firstName = ''
+  lastName = ''
   username = ''
   email = ''
   password = ''
@@ -59,7 +75,13 @@ export default class SignUp extends Vue {
   signUp (email, password) {
     FirebaseService.registerUser(email, password)
       .then(response => {
-        this.addUserToDb(response.user.uid, this.username, this.email)
+        let data = {
+          firstName: this.firstName,
+          lastName: this.lastName,
+          username: this.username,
+          email: this.email
+        }
+        this.addUserToDb(response.user.uid, data)
         alert('user added')
         this.$router.replace('/login')
       })
@@ -70,12 +92,11 @@ export default class SignUp extends Vue {
 
   /**
    * Add user to firebase db
-   * @param {String} uid
-   * @param {String} username
-   * @param {String} email
+   * @param {uid} uid user id
+   * @param {Object} data form data
    */
-  addUserToDb (uid, username, email) {
-    FirebaseService.writeUserData(uid, username, email)
+  addUserToDb (uid, data) {
+    FirebaseService.writeUserData(uid, data)
   }
 }
 </script>

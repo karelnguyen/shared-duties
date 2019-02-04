@@ -19,6 +19,15 @@ Vue.mixin({
      */
     generateRandomId () {
       return uuid()
+    },
+
+    /**
+     * Checks if object is empty
+     * @param  {Object}  object
+     * @return {Boolean}
+     */
+    isObjectEmpty (object) {
+      return (Object.keys(object).length === 0 && object.constructor === Object)
     }
   }
 })

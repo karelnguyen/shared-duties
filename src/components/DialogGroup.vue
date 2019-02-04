@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { Prop, Component, Emit, Watch, Vue } from 'vue-property-decorator'
+import { Prop, Component, Watch, Vue } from 'vue-property-decorator'
 import FirebaseService from '@/services/firebase'
 
 @Component({
@@ -58,12 +58,6 @@ export default class DialogGroup extends Vue {
   showDialog = false
 
   /**
-   * Mounted actions at beginning
-   */
-  mounted () {
-  }
-
-  /**
    * Close dialog, triggering v-model event
    */
   closeDialog () {
@@ -81,8 +75,8 @@ export default class DialogGroup extends Vue {
 
     FirebaseService.createGroup(groupId, this.formData.name, ownerUid)
       .then(() => {
-        alert(`Group ${this.formData.name} succesfully added`)
         this.closeDialog()
+        alert(`Group ${this.formData.name} succesfully added`)
       })
       .catch(err => {
         alert(err.message)

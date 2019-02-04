@@ -7,6 +7,13 @@ import 'firebase/database'
  */
 
 /**
+ * Auth request
+ */
+function authRequest () {
+  return firebase.auth()
+}
+
+/**
  * Register user with email and password
  * @param  {String} email
  * @param  {String} password
@@ -43,34 +50,53 @@ function getUser () {
 }
 
 /**
+ * Database service
+ */
+
+/**
+ * Firebase request
+ * @param {String} url
+ * @return {Promise}
+ */
+function firebaseRequest (url) {
+  return firebase.database().ref(url)
+}
+
+/**
+ * Search in firebase
+ * Usage: "FirebaseService.searchByValueRef(refUrl, orderByValue, searchingValue).on(snapshot => snapshot.val())"
+ * @param  {String} refUrl
+ * @param  {String} orderByValue
+ * @param  {String} searchingValue
+ * @return {[type]}
+ */
+function searchByValueRef (url, orderByValue, searchingValue) {
+  return firebaseRequest(url).orderByChild(orderByValue).equalTo(searchingValue)
+}
+
+/**
  * Users service
  */
 
 /**
  * Post user to database
  * @param  {String} userId
- * @param  {String} name
- * @param  {String} email
+ * @param  {Object} data
  * @return {Promise}
  */
-function writeUserData (userId, name, email) {
-  return firebase.database().ref('users/' + userId).set({
+function writeUserData (userId, data) {
+  return firebaseRequest('users/' + userId).set({
     uid: userId,
-    username: name,
-    email: email
+    firstName: data.firstName,
+    lastName: data.lastName,
+    username: data.username,
+    email: data.email
   })
 }
 
 /**
  * Groups service
  */
-
-/**
- * Groups reference
- */
-function groupsRef () {
-  return firebase.database().ref('groups')
-}
 
 /**
  * Post group
@@ -81,7 +107,7 @@ function groupsRef () {
  * @return {Promise}
  */
 function createGroup (groupId, name, owner, members = [owner]) {
-  return firebase.database().ref('groups/' + groupId).set({
+  return firebaseRequest('groups/' + groupId).set({
     groupId: groupId,
     name: name,
     owner: owner,
@@ -96,7 +122,9 @@ const FirebaseService = {
   getUser,
   writeUserData,
   createGroup,
-  groupsRef
+  firebaseRequest,
+  searchByValueRef,
+  authRequest
 }
 
 export default FirebaseService
