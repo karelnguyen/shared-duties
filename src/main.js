@@ -24,6 +24,7 @@ firebase.initializeApp(firebaseConfig)
 const db = firebase.database().ref()
 db.child('/users')
 db.child('/groups')
+db.child('/tasks')
 
 new Vue({
   store,

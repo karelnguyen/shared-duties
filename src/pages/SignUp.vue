@@ -66,6 +66,14 @@ export default class SignUp extends Vue {
   email = ''
   password = ''
 
+  errorObject = {
+    firstName: '',
+    lastName: '',
+    username: '',
+    email: '',
+    password: ''
+  }
+
   /**
    * Sign up user with email and password
    * @param  {String} email

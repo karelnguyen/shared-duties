@@ -1,7 +1,7 @@
 <template>
   <v-app id="app">
     <v-toolbar app absolute flat color="white">
-      <!-- <v-toolbar-title>Shared Duties Dashboard</v-toolbar-title> -->
+      <v-toolbar-title>Shared Duties Dashboard</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <v-menu offset-y>
@@ -15,7 +15,7 @@
       </v-toolbar-items>
       <v-btn color="black" dark @click="signOut">sign out</v-btn>
     </v-toolbar>
-    <router-view />
+    <router-view class="mt-5"/>
   </v-app>
 </template>
 
@@ -36,13 +36,16 @@ export default class App extends Vue {
    * On component creation
    */
   created () {
-    /*
-      Auth observer checks if user is signed in, otherwise it will redirect to Home Page
+    /**
+     * Auth observer checks if user is signed in, otherwise it will redirect to Home Page
      */
     FirebaseService.authRequest().onAuthStateChanged(user => {
       if (!user) {
         this.$router.replace({ name: 'home' })
       } else {
+        if (window.location.pathname === '/home') {
+          this.$router.replace({ name: 'dashboard' })
+        }
         this.setUserEmail(user.email)
         localStorage.setItem('userEmail', user.email)
         localStorage.setItem('uid', user.uid)
@@ -65,7 +68,7 @@ export default class App extends Vue {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: white;
   background: #141E30;  /* fallback for old browsers */
   background: -webkit-linear-gradient(to right, #243B55, #141E30);  /* Chrome 10-25, Safari 5.1-6 */
   background: linear-gradient(to right, #243B55, #141E30); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */

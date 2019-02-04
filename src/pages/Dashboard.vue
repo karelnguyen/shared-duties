@@ -1,7 +1,7 @@
 <template>
-  <v-container grid-list-md>
+  <v-container grid-list-xs>
 
-    <v-tabs class="mt-5" dark left color="black" slider-color="red" slot="extension" v-model="tab">
+    <v-tabs dark left color="black" slider-color="red" slot="extension" v-model="tab">
       <v-tab
         v-for="tabs in ['overview', 'calendar']"
         :key="tabs"
@@ -14,7 +14,6 @@
     <v-tabs-items v-model="tab">
       <v-tab-item
         value="tab-overview"
-        class="mt-1"
       >
         <v-layout row wrap justify-space-between>
           <v-flex xs12 lg8>
@@ -41,7 +40,11 @@
                           Groups that I own:
                         </div>
                         <span v-for="(oGroups, key) in ownGroups" :key="key">
-                          <v-btn color="primary" class="ml-2" @click="$router.push({ name: 'groupDetail', params: { groupName: 'neco' } })">
+                          <v-btn
+                            color="primary"
+                            class="ml-2"
+                            @click="redirectToGroupDetail(oGroups.groupId, oGroups.name)"
+                          >
                             {{oGroups.name}}
                           </v-btn>
                         </span>
@@ -58,9 +61,9 @@
                     <v-spacer></v-spacer>
                     <v-divider></v-divider>
                     <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="black" dark @click="showDialog = true">Add group</v-btn>
-                  </v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn color="black" dark @click="showDialog = true">Add group</v-btn>
+                    </v-card-actions>
                   <DialogGroup
                     v-model="showDialog"
                     :editMode="false"
@@ -85,7 +88,7 @@
                 <v-divider></v-divider>
                 <v-card-text>
                   <v-layout row wrap v-if="!isObjectEmpty(userData)">
-                    <v-flex xs6 class="text-sm-left">
+                    <v-flex xs2 lg6 class="text-sm-left">
                       <div class="subheading">
                         first name:
                       </div>
@@ -122,6 +125,12 @@
                 </v-card-text>
                 </v-flex>
               </v-layout>
+              <v-spacer></v-spacer>
+              <v-divider></v-divider>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="black" dark >Edit profile</v-btn>
+              </v-card-actions>
             </v-card>
           </v-flex>
         </v-layout>
@@ -210,6 +219,17 @@ export default class Dashboard extends Vue {
       this.foreignGroups = FGData
       this.groupsLoading = false
     })
+  }
+
+  /**
+   * Redirect to group detail page
+   * @param  {String} groupId
+   * @param  {String} groupName
+   */
+  redirectToGroupDetail (groupId, groupName) {
+    localStorage.setItem('currentGroupId', groupId)
+    groupName = groupName.indexOf(' ') > -1 ? this.replaceSpaceWithDash(groupName) : groupName
+    this.$router.push({ name: 'groupDetail', params: { groupName: groupName, groupId: groupId } })
   }
 }
 

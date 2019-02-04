@@ -115,6 +115,10 @@ function createGroup (groupId, name, owner, members = [owner]) {
   })
 }
 
+// function addMemberToGroup (uid, groupId) {
+//
+// }
+
 const FirebaseService = {
   registerUser,
   signIn,

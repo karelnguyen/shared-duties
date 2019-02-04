@@ -9,7 +9,7 @@
         class="headline grey lighten-2"
         primary-title
       >
-        <span class="mr-1" v-if="!editMode">Add</span> <span v-else>Edit</span>group
+        <span class="mr-1" v-if="!editMode">Add</span> <span v-else>Edit</span>member
       </v-card-title>
 
       <v-card-text>
@@ -42,12 +42,12 @@ import { Prop, Component, Watch, Vue } from 'vue-property-decorator'
 import FirebaseService from '@/services/firebase'
 
 @Component({
-  name: 'DialogGroup'
+  name: 'DialogMember'
 })
 /**
  * Dialog Group Component
  */
-export default class DialogGroup extends Vue {
+export default class DialogMember extends Vue {
   @Prop(Boolean) editMode
   @Prop({ default: false }) value
 
