@@ -68,7 +68,7 @@ function firebaseRequest (url) {
  * @param  {String} refUrl
  * @param  {String} orderByValue
  * @param  {String} searchingValue
- * @return {[type]}
+ * @return {Promise}
  */
 function searchByValueRef (url, orderByValue, searchingValue) {
   return firebaseRequest(url).orderByChild(orderByValue).equalTo(searchingValue)
@@ -115,9 +115,24 @@ function createGroup (groupId, name, owner, members = [owner]) {
   })
 }
 
-// function addMemberToGroup (uid, groupId) {
-//
-// }
+/**
+ * Update group
+ * @param  {String} groupId
+ * @param  {Object} data
+ * @return {Promise}
+ */
+function updateGroup (groupId, data) {
+  return firebaseRequest('groups/' + groupId).update(data)
+}
+
+/**
+ * Add member to group, updating group
+ * @param {String} uid
+ * @param {String} groupId
+ */
+function addMemberToGroup (uid, groupId) {
+
+}
 
 const FirebaseService = {
   registerUser,
@@ -128,7 +143,9 @@ const FirebaseService = {
   createGroup,
   firebaseRequest,
   searchByValueRef,
-  authRequest
+  authRequest,
+  addMemberToGroup,
+  updateGroup
 }
 
 export default FirebaseService

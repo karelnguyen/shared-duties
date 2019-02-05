@@ -14,10 +14,25 @@
 
       <v-card-text>
         <v-text-field
-          v-model="formData.name"
-          name="name"
-          label="name"
+          v-model="formData.search"
+          name="search"
+          label="Username"
+          @input="searchUser(formData.search)"
         ></v-text-field>
+        <div v-if="!isObjectEmpty(searchedUser)">
+          <v-layout row wrap class="text-sm-left" align-center>
+            <v-flex>
+              {{searchedUser.username}}
+            </v-flex>
+            <v-flex>
+              {{`${searchedUser.firstName} ${searchedUser.lastName}`}}
+            </v-flex>
+            <v-flex>
+              {{searchedUser.email}}
+            </v-flex>
+            <v-btn v-if="!forbiddenUser" flat color="green" dark small @click="addMember()"><v-icon>check</v-icon>add</v-btn>
+          </v-layout>
+        </div>
       </v-card-text>
 
       <v-divider></v-divider>
@@ -25,20 +40,13 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn flat @click="closeDialog">Close</v-btn>
-        <v-btn
-          color="primary"
-          flat
-          @click="confirmDialog()"
-        >
-          <span class="mr-1" v-if="!editMode">Add</span> <span v-else>Edit</span>Group
-        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script>
-import { Prop, Component, Watch, Vue } from 'vue-property-decorator'
+import { Prop, Emit, Component, Watch, Vue } from 'vue-property-decorator'
 import FirebaseService from '@/services/firebase'
 
 @Component({
@@ -49,13 +57,17 @@ import FirebaseService from '@/services/firebase'
  */
 export default class DialogMember extends Vue {
   @Prop(Boolean) editMode
+  @Prop(Array) members
+  @Prop(String) groupId
   @Prop({ default: false }) value
 
+  searchedUser = {}
   formData = {
-    name: ''
+    search: ''
   }
-
   showDialog = false
+  forbiddenUser = false
+  newMembers = []
 
   /**
    * Close dialog, triggering v-model event
@@ -66,20 +78,37 @@ export default class DialogMember extends Vue {
   }
 
   /**
-   * Confirm dialog
+   * Search user by username
+   * @param  {String} value
    * @return {Promise}
    */
-  confirmDialog () {
-    const groupId = this.generateRandomId()
-    const ownerUid = localStorage.getItem('uid')
+  searchUser (value) {
+    this.forbiddenUser = false
+    return FirebaseService.searchByValueRef('/users', 'username', value).on('value', snapshot => {
+      let response = snapshot.val()
+      if (response) {
+        this.searchedUser = this.avoidIdObjectName(response)
+        if (this.members.includes(this.searchedUser.uid)) {
+          this.forbiddenUser = true
+        }
+      } else {
+        this.searchedUser = {}
+      }
+    })
+  }
 
-    FirebaseService.createGroup(groupId, this.formData.name, ownerUid)
+  @Emit('refresh')
+  addMember () {
+    this.newMembers.push(this.searchedUser.uid)
+    let data = {
+      members: this.newMembers
+    }
+    return FirebaseService.updateGroup(this.groupId, data)
       .then(() => {
-        this.closeDialog()
-        alert(`Group ${this.formData.name} succesfully added`)
+        this.flash('Added new member to group', 'success')
       })
       .catch(err => {
-        alert(err.message)
+        this.flash(err.message, 'error')
       })
   }
 
@@ -89,6 +118,12 @@ export default class DialogMember extends Vue {
   @Watch('value')
   initData () {
     this.showDialog = this.value
+    this.newMembers = this.members
+    this.searchedUser = {}
+    this.formData = {
+      search: ''
+    }
+    this.forbiddenUser = false
   }
 }
 </script>

@@ -9,7 +9,7 @@
                   class="headline lighten-2"
                   primary-title
                   >
-                  Group <span class="ml-1" v-if="!isObjectEmpty(groupData)">{{ groupData[currentGroupId].name }}</span>
+                  Group <span class="ml-1" v-if="!isObjectEmpty(groupData)">{{ groupData.name }}</span>
                   <v-spacer></v-spacer>
                   <v-icon>all_inbox</v-icon>
                 </v-card-title>
@@ -29,8 +29,14 @@
                     </v-flex>
                     <v-flex xs6 class="text-sm-left">
                       <div class="subheading font-weight-bold">
-                        {{ownerData[Object.keys(ownerData)[0]].username}}
+                        {{ownerData.username}}
                       </div>
+                      <span
+                        class="mr-2 subheading font-weight-bold"
+                        v-for="member in membersData"
+                        :key="member.uid">
+                        <span>{{avoidIdObjectName(member).username}}</span>
+                      </span>
                     </v-flex>
                   </v-layout>
                   <v-progress-circular
@@ -54,6 +60,9 @@
     <DialogMember
       v-model="showDialog"
       :editMode="false"
+      :groupId="groupData.groupId"
+      :members="groupData.members"
+      @refresh="initData()"
     />
   </v-container>
 </template>
@@ -74,6 +83,7 @@ import DialogMember from '@/components/DialogMember'
  */
 export default class GroupDetail extends Vue {
   currentGroupId = localStorage.getItem('currentGroupId')
+  membersData = []
   ownerData = {}
   groupData = {}
   showDialog = false
@@ -83,22 +93,33 @@ export default class GroupDetail extends Vue {
    * Get group detail data
    * @return {Promise}
    */
-  getGroupInfo (groupId) {
+  getGroupData (groupId) {
     return FirebaseService.searchByValueRef('/groups', 'groupId', groupId).on('value', snapshot => {
-      this.groupData = snapshot.val()
-      let userId = this.groupData[this.currentGroupId].owner
-      return this.getGroupOwner(userId)
+      let response = snapshot.val()
+      this.groupData = this.avoidIdObjectName(response)
+      this.groupData.members.map(memberId => {
+        this.getUserData(memberId)
+      })
+      this.getGroupOwnerData(this.groupData.owner)
+    })
+  }
+
+  getUserData (uid) {
+    return FirebaseService.searchByValueRef('/users', 'uid', uid).on('value', snapshot => {
+      let response = snapshot.val()
+      this.membersData.push(response)
     })
   }
 
   /**
-   * Get owner information
+   * Get user information
    * @param  {String} uid
    * @return {Promise}
    */
-  getGroupOwner (uid) {
+  getGroupOwnerData (uid) {
     return FirebaseService.searchByValueRef('/users', 'uid', uid).on('value', snapshot => {
-      this.ownerData = snapshot.val()
+      let response = snapshot.val()
+      this.ownerData = this.avoidIdObjectName(response)
     })
   }
 
@@ -106,10 +127,15 @@ export default class GroupDetail extends Vue {
    * Data initialization
    */
   initData () {
+    this.membersData = []
+    this.ownerData = {}
+    this.groupData = {}
+    this.showDialog = false
+    this.loading = false
     if (this.$route.params.groupId) {
-      this.getGroupInfo(this.$route.params.groupId)
+      this.getGroupData(this.$route.params.groupId)
     } else {
-      this.getGroupInfo(this.currentGroupId)
+      this.getGroupData(this.currentGroupId)
     }
   }
 

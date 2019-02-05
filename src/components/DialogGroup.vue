@@ -76,10 +76,10 @@ export default class DialogGroup extends Vue {
     FirebaseService.createGroup(groupId, this.formData.name, ownerUid)
       .then(() => {
         this.closeDialog()
-        alert(`Group ${this.formData.name} succesfully added`)
+        this.flash(`Group ${this.formData.name} succesfully created`, 'success')
       })
       .catch(err => {
-        alert(err.message)
+        this.flash(err.message, 'error')
       })
   }
 

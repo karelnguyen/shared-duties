@@ -39,8 +39,10 @@
                         <div class="font-weight-bold subheading">
                           Groups that I own:
                         </div>
-                        <span v-for="(oGroups, key) in ownGroups" :key="key">
+                        <span v-for="oGroups in ownGroups" :key="oGroups.groupId">
                           <v-btn
+                            outline
+                            round
                             color="primary"
                             class="ml-2"
                             @click="redirectToGroupDetail(oGroups.groupId, oGroups.name)"
@@ -51,11 +53,17 @@
                         <div class="font-weight-bold subheading">
                           Groups that I am a member of:
                         </div>
-                        <div v-for="(fGroups, key) in foreignGroups" :key="key">
-                          <div class="ml-2">
+                        <span v-for="fGroups in foreignGroups" :key="fGroups.groupId">
+                          <v-btn
+                            outline
+                            round
+                            color="warning"
+                            class="ml-2"
+                            @click="redirectToGroupDetail(fGroups.groupId, fGroups.name)"
+                          >
                             {{fGroups.name}}
-                          </div>
-                        </div>
+                          </v-btn>
+                        </span>
                       </v-flex>
                     </v-card-text>
                     <v-spacer></v-spacer>

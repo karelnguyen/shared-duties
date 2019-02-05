@@ -1,60 +1,111 @@
 <template>
   <v-container>
-    <v-layout column wrap justify-center align-center align-content-center class="sign-up-area">
-      <h1>Sign up page</h1>
-      <v-flex mt-5>
-        <v-text-field
-          v-model="firstName"
-          name="firstName"
-          label="first name"
-          outline
-          class="sign-up-input"
-        ></v-text-field>
-        <v-text-field
-          v-model="lastName"
-          name="lastName"
-          label="last name"
-          outline
-          class="sign-up-input"
-        ></v-text-field>
-        <v-text-field
-          v-model="username"
-          name="username"
-          label="username"
-          outline
-          class="sign-up-input"
-        ></v-text-field>
-        <v-text-field
-          v-model="email"
-          name="email"
-          label="email"
-          outline
-          class="sign-up-input"
-        ></v-text-field>
-      </v-flex>
-      <v-flex>
-        <v-text-field
-          v-model="password"
-          name="password"
-          label="password"
-          outline
-          class="sign-up-input"
-        ></v-text-field>
-      </v-flex>
-      <v-btn color="blue" dark round @click="signUp(email, password)">Sign up</v-btn>
-      <p>
-        Already signed up? <v-btn flat @click="$router.push({name: 'login'})">Sign in</v-btn>
-      </p>
-    </v-layout>
+    <v-card tile>
+      <v-card-title
+        class="headline lighten-2"
+        primary-title
+        >
+        Sign up
+        <v-spacer></v-spacer>
+        <v-icon>all_inbox</v-icon>
+      </v-card-title>
+      <v-divider></v-divider>
+      <v-layout column wrap justify-center align-center align-content-center class="sign-up-area">
+        <v-flex mt-5>
+          <v-text-field
+            :error-messages="vErrors('firstName')"
+            v-model="firstName"
+            name="firstName"
+            label="first name"
+            outline
+            class="sign-up-input"
+            required
+          ></v-text-field>
+          <v-text-field
+            :error-messages="vErrors('lastName')"
+            v-model="lastName"
+            name="lastName"
+            label="last name"
+            outline
+            class="sign-up-input"
+          ></v-text-field>
+          <v-text-field
+            :error-messages="forbiddenUsername ? 'Username is taken!' : vErrors('username')"
+            v-model="username"
+            name="username"
+            label="username"
+            outline
+            class="sign-up-input"
+            @input="isUsernameAvailable(username)"
+          ></v-text-field>
+          <v-text-field
+            :error-messages="vErrors('email')"
+            v-model="email"
+            name="email"
+            label="email"
+            outline
+            class="sign-up-input"
+          ></v-text-field>
+        </v-flex>
+        <v-flex>
+          <v-text-field
+            :error-messages="vErrors('password')"
+            v-model="password"
+            name="password"
+            label="password"
+            outline
+            class="sign-up-input"
+          ></v-text-field>
+        </v-flex>
+        <v-flex>
+          <v-text-field
+            :error-messages="vErrors('repeatPassword')"
+            v-model="repeatPassword"
+            name="repeatPassword"
+            label="repeat password"
+            outline
+            class="sign-up-input"
+          ></v-text-field>
+        </v-flex>
+        <v-btn color="black" dark round @click="signUp(email, password, username)">Sign up</v-btn>
+        <p>
+          Already signed up? <v-btn flat @click="$router.push({name: 'login'})">Sign in</v-btn>
+        </p>
+      </v-layout>
+
+    </v-card>
   </v-container>
 </template>
 
 <script>
-import { Component, Vue } from 'vue-property-decorator'
+import { Component, Vue, Watch } from 'vue-property-decorator'
 import FirebaseService from '@/services/firebase'
+import { required, email, sameAs } from 'vuelidate/lib/validators'
 
 @Component({
-  name: 'SignUp'
+  name: 'SignUp',
+  validations: {
+    firstName: {
+      required
+    },
+    lastName: {
+      required
+    },
+    username: {
+      required
+    },
+    email: {
+      required,
+      email
+    },
+    password: {
+      required
+    },
+    repeatPassword: {
+      required,
+      sameAsPassword: sameAs('password')
+    }
+  }
 })
 /**
  * Sign Up Page
@@ -65,14 +116,8 @@ export default class SignUp extends Vue {
   username = ''
   email = ''
   password = ''
-
-  errorObject = {
-    firstName: '',
-    lastName: '',
-    username: '',
-    email: '',
-    password: ''
-  }
+  repeatPassword = ''
+  forbiddenUsername = false
 
   /**
    * Sign up user with email and password
@@ -80,7 +125,15 @@ export default class SignUp extends Vue {
    * @param  {String} password
    * @return {Promise}
    */
-  signUp (email, password) {
+  signUp (email, password, username) {
+    this.$v.$touch()
+    if (this.$v.$invalid) {
+      return
+    }
+    if (this.forbiddenUsername) {
+      this.flash('Username is already taken', 'error')
+      return
+    }
     FirebaseService.registerUser(email, password)
       .then(response => {
         let data = {
@@ -90,12 +143,28 @@ export default class SignUp extends Vue {
           email: this.email
         }
         this.addUserToDb(response.user.uid, data)
-        alert('user added')
+        this.flash('Succesfully registered', 'success')
+        this.flash('Log in to get to dashboard', 'info')
         this.$router.replace('/login')
       })
       .catch(err => {
-        alert(err.message)
+        this.flash(err.message, 'error')
       })
+  }
+
+  /**
+   * Check if username is taken
+   * @param  {String} username
+   * @return {Boolean} true, if username is available
+   */
+  isUsernameAvailable (username) {
+    this.$v.username.$touch()
+    this.forbiddenUsername = false
+    FirebaseService.searchByValueRef('/users', 'username', username).on('value', snapshot => {
+      if (snapshot.val()) {
+        this.forbiddenUsername = true
+      }
+    })
   }
 
   /**
@@ -106,6 +175,16 @@ export default class SignUp extends Vue {
   addUserToDb (uid, data) {
     FirebaseService.writeUserData(uid, data)
   }
+
+  // async checkUsername (username) {
+  //   this.$v.username.$touch()
+  //   if (await this.isUsernameAvailable(username)) {
+  //     this.forbiddenUsername = false
+  //   } else {
+  //     this.forbiddenUsername = true
+  //   }
+  //   console.log(this.forbiddenUsername)
+  // }
 }
 </script>
 
@@ -114,6 +193,6 @@ export default class SignUp extends Vue {
     width: 300px
   }
   .sign-up-area {
-    margin-top: 200px
+    margin-top: 20px
   }
 </style>

@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import Vuelidate from 'vuelidate'
 import firebase from 'firebase/app'
 import firebaseConfig from '@/../config/firebase'
 import 'firebase/database'
@@ -9,10 +10,10 @@ import router from '@/router'
 import store from './store'
 import '@/mixins'
 
+Vue.use(Vuelidate)
 Vue.use(Vuex)
 
 Vue.config.productionTip = false
-
 /*
   Firebase init
  */
@@ -25,6 +26,13 @@ const db = firebase.database().ref()
 db.child('/users')
 db.child('/groups')
 db.child('/tasks')
+
+const eventHub = new Vue()
+Vue.prototype.$eventHub = eventHub
+
+Vue.prototype.flash = (message, type, timeout) => {
+  Vue.prototype.$eventHub.$emit('flash', message, type, timeout)
+}
 
 new Vue({
   store,
