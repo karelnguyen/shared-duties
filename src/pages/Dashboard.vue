@@ -1,23 +1,22 @@
 <template>
-  <v-container grid-list-xs>
-
-    <v-tabs dark left color="black" slider-color="red" slot="extension" v-model="tab">
+  <v-container grid-list-sm>
+    <v-tabs class="pb-1" dark left color="black" slider-color="red" slot="extension" v-model="tab">
       <v-tab
-        v-for="tabs in ['overview', 'calendar']"
-        :key="tabs"
-        :href="`#tab-${tabs}`"
+      v-for="tabs in ['overview', 'calendar']"
+      :key="tabs"
+      :href="`#tab-${tabs}`"
       >
-        {{ tabs }}
-      </v-tab>
-    </v-tabs>
+      {{ tabs }}
+    </v-tab>
+  </v-tabs>
 
-    <v-tabs-items v-model="tab">
-      <v-tab-item
-        value="tab-overview"
-      >
-        <v-layout row wrap justify-space-between>
-          <v-flex xs12 lg8>
-            <v-card tile min-height="200">
+    <v-card tile>
+      <v-tabs-items v-model="tab">
+        <v-tab-item
+          value="tab-overview"
+        >
+          <v-layout row wrap justify-space-between>
+            <v-flex xs12 lg8>
                 <v-layout row wrap>
                   <v-flex>
                     <v-card-title
@@ -35,7 +34,7 @@
                         indeterminate
                         color="primary"
                       ></v-progress-circular>
-                      <v-flex xs7  class="text-sm-left" v-else>
+                      <v-flex  class="text-sm-left" v-else>
                         <div class="font-weight-bold subheading">
                           Groups that I own:
                         </div>
@@ -66,23 +65,16 @@
                         </span>
                       </v-flex>
                     </v-card-text>
-                    <v-spacer></v-spacer>
-                    <v-divider></v-divider>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn color="black" dark @click="showDialog = true">Add group</v-btn>
-                    </v-card-actions>
+
                   <DialogGroup
                     v-model="showDialog"
                     :editMode="false"
                   />
                 </v-flex>
               </v-layout>
-            </v-card>
-          </v-flex>
+            </v-flex>
 
-          <v-flex xs12 lg4>
-            <v-card tile min-width="300">
+            <v-flex xs12 lg4>
               <v-layout row wrap>
                 <v-flex>
                   <v-card-title
@@ -133,24 +125,29 @@
                 </v-card-text>
                 </v-flex>
               </v-layout>
-              <v-spacer></v-spacer>
-              <v-divider></v-divider>
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="black" dark >Edit profile</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-flex>
-        </v-layout>
-      </v-tab-item>
-      <v-tab-item
-        value="tab-calendar"
-      >
-        <v-card flat>
-          <v-card-text>neco 2</v-card-text>
-        </v-card>
-      </v-tab-item>
-    </v-tabs-items>
+            </v-flex>
+          </v-layout>
+        </v-tab-item>
+        <v-tab-item
+          value="tab-calendar"
+        >
+          <v-card flat>
+            <v-card-text>neco 2</v-card-text>
+          </v-card>
+        </v-tab-item>
+      </v-tabs-items>
+      <v-divider></v-divider>
+      <v-layout row wrap justify-space-between>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="black" dark @click="showDialog = true">Add group</v-btn>
+        </v-card-actions>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="black" dark >Edit profile</v-btn>
+        </v-card-actions>
+      </v-layout>
+    </v-card>
   </v-container>
 </template>
 
@@ -158,12 +155,18 @@
 import { Component, Vue } from 'vue-property-decorator'
 import FirebaseService from '@/services/firebase'
 import DialogGroup from '@/components/DialogGroup'
+import { mapActions, mapState } from 'vuex'
 
 @Component({
   name: 'Dashboard',
   components: {
     DialogGroup
-  }
+  },
+  methods: mapActions(['setUserEmail', 'setOwnGroups', 'setForeignGroups']),
+  computed: mapState({
+    ownGroups: state => state.user.ownGroups,
+    foreignGroups: state => state.user.foreignGroups
+  })
 })
 /**
  * Dashboard Page
@@ -171,8 +174,6 @@ import DialogGroup from '@/components/DialogGroup'
 export default class Dashboard extends Vue {
   uid = localStorage.getItem('uid')
   showDialog = false
-  ownGroups = []
-  foreignGroups = []
   groupsLoading = false
   userData = {}
   tab = 'tab-overview'
@@ -182,15 +183,15 @@ export default class Dashboard extends Vue {
    */
   mounted () {
     this.getGroups()
-    this.getUserInfo()
+    this.getUserInfo(this.uid)
   }
 
   /**
    * Get user information
    * @return {Promise}
    */
-  getUserInfo () {
-    return FirebaseService.searchByValueRef('/users', 'uid', this.uid).on('value', snapshot => {
+  getUserInfo (uid) {
+    return FirebaseService.searchByValueRef('/users', 'uid', uid).on('value', snapshot => {
       this.userData = snapshot.val()
     })
   }
@@ -201,30 +202,32 @@ export default class Dashboard extends Vue {
    */
   getGroups () {
     this.groupsLoading = true
-    return FirebaseService.firebaseRequest('groups').on('value', snapshot => {
+    FirebaseService.firebaseRequest('groups').on('value', snapshot => {
       let uid = localStorage.getItem('uid')
       let response = snapshot.val()
-      let OGData = []
-      let FGData = []
+      let oGData = []
+      let fGData = []
 
       for (let group in response) {
         /**
         * Groups that user owns
         */
         if (uid === response[group].owner) {
-          OGData.push(response[group])
+          oGData.push(response[group])
         }
 
         /**
         * Groups that user is member of
         */
         if (response[group].members.includes(uid) && uid !== response[group].owner) {
-          FGData.push(response[group])
+          fGData.push(response[group])
         }
       }
-
-      this.ownGroups = OGData
-      this.foreignGroups = FGData
+      /**
+       * Save data to store (ownGroups, foreignGroups)
+       */
+      this.setOwnGroups(oGData)
+      this.setForeignGroups(fGData)
       this.groupsLoading = false
     })
   }
@@ -236,7 +239,7 @@ export default class Dashboard extends Vue {
    */
   redirectToGroupDetail (groupId, groupName) {
     localStorage.setItem('currentGroupId', groupId)
-    groupName = groupName.indexOf(' ') > -1 ? this.replaceSpaceWithDash(groupName) : groupName
+    groupName = groupName.indexOf(' ') > -1 ? this.replaceSpaceWithDash(groupName) : groupName.toLowerCase()
     this.$router.push({ name: 'groupDetail', params: { groupName: groupName, groupId: groupId } })
   }
 }

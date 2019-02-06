@@ -83,9 +83,13 @@ Vue.mixin({
      * @return {String}
      */
     replaceSpaceWithDash (string) {
-      let data = string.split(' ')
-      data = data.join('-')
-      return data
+      string = string.split(' ')
+      let data = []
+      string.map(item => {
+        data.push(item.toLowerCase())
+      })
+      string = data.join('-')
+      return string
     },
 
     /**

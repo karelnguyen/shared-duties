@@ -95,6 +95,16 @@ function writeUserData (userId, data) {
 }
 
 /**
+ * Update user
+ * @param  {String} uid
+ * @param  {Object} data
+ * @return {Promise}
+ */
+function updateUser (uid, data) {
+  return firebaseRequest('users/' + uid).update(data)
+}
+
+/**
  * Groups service
  */
 
@@ -126,12 +136,17 @@ function updateGroup (groupId, data) {
 }
 
 /**
- * Add member to group, updating group
- * @param {String} uid
- * @param {String} groupId
+ * Tasks service
  */
-function addMemberToGroup (uid, groupId) {
 
+/**
+ * Create task
+ * @param  {String} taskId
+ * @param  {Object} data
+ * @return {Promise}
+ */
+function createTask (taskId, data) {
+  return firebaseRequest('tasks/' + taskId).set(data)
 }
 
 const FirebaseService = {
@@ -144,8 +159,9 @@ const FirebaseService = {
   firebaseRequest,
   searchByValueRef,
   authRequest,
-  addMemberToGroup,
-  updateGroup
+  updateGroup,
+  updateUser,
+  createTask
 }
 
 export default FirebaseService

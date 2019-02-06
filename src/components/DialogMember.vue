@@ -30,7 +30,7 @@
             <v-flex>
               {{searchedUser.email}}
             </v-flex>
-            <v-btn v-if="!forbiddenUser" flat color="green" dark small @click="addMember()"><v-icon>check</v-icon>add</v-btn>
+            <v-btn v-if="!forbiddenUser" flat color="green" dark small @click="addUserToGroupData()"><v-icon>check</v-icon>add</v-btn>
           </v-layout>
         </div>
       </v-card-text>
@@ -67,7 +67,6 @@ export default class DialogMember extends Vue {
   }
   showDialog = false
   forbiddenUser = false
-  newMembers = []
 
   /**
    * Close dialog, triggering v-model event
@@ -97,14 +96,20 @@ export default class DialogMember extends Vue {
     })
   }
 
+  /**
+   * Add user to group (to members property)
+   */
   @Emit('refresh')
-  addMember () {
-    this.newMembers.push(this.searchedUser.uid)
+  addUserToGroupData () {
+    let newMembers = this.members
+    newMembers.push(this.searchedUser.uid)
     let data = {
-      members: this.newMembers
+      members: newMembers
     }
     return FirebaseService.updateGroup(this.groupId, data)
       .then(() => {
+        this.addGroupToUserData(this.groupId, this.searchedUser.uid)
+        this.closeDialog()
         this.flash('Added new member to group', 'success')
       })
       .catch(err => {
@@ -113,12 +118,27 @@ export default class DialogMember extends Vue {
   }
 
   /**
+   * Add groupId to user data
+   * @param {String} groupId
+   * @param {String} uid
+   */
+  addGroupToUserData (groupId, uid) {
+    let data = this.searchedUser
+    if (!data.groups) {
+      data['groups'] = []
+      data.groups.push(groupId)
+    } else {
+      data.groups.push(groupId)
+    }
+    return FirebaseService.updateUser(uid, data)
+  }
+
+  /**
    * Watcher for value
    */
   @Watch('value')
   initData () {
     this.showDialog = this.value
-    this.newMembers = this.members
     this.searchedUser = {}
     this.formData = {
       search: ''

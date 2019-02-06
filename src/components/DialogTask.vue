@@ -9,15 +9,20 @@
         class="headline grey lighten-2"
         primary-title
       >
-        <span class="mr-1" v-if="!editMode">Add</span> <span v-else>Edit</span>group
+        <span class="mr-1" v-if="!editMode">Add</span> <span v-else>Edit</span>Task
       </v-card-title>
 
       <v-card-text>
         <v-text-field
-          :error-messages="forbiddenGroup ? 'Group name is taken!' : vErrors('name')"
+          :error-messages="vErrors('name')"
           v-model="name"
           name="name"
-          label="name"
+          label="Task name"
+        ></v-text-field>
+        <v-text-field
+          v-model="description"
+          name="description"
+          label="Description"
         ></v-text-field>
       </v-card-text>
 
@@ -27,11 +32,11 @@
         <v-spacer></v-spacer>
         <v-btn flat @click="closeDialog">Close</v-btn>
         <v-btn
+          @click="confirmDialog()"
           color="primary"
           flat
-          @click="confirmDialog()"
         >
-          <span class="mr-1" v-if="!editMode">Add</span> <span v-else>Edit</span>Group
+          <span class="mr-1" v-if="!editMode">Add</span> <span v-else>Edit</span>Task
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -44,7 +49,7 @@ import { required } from 'vuelidate/lib/validators'
 import FirebaseService from '@/services/firebase'
 
 @Component({
-  name: 'DialogGroup',
+  name: 'DialogTask',
   validations: {
     name: {
       required
@@ -52,15 +57,20 @@ import FirebaseService from '@/services/firebase'
   }
 })
 /**
- * Dialog Group Component
+ * Dialog Task Component
  */
-export default class DialogGroup extends Vue {
+export default class DialogTask extends Vue {
   @Prop(Boolean) editMode
+  @Prop(String) groupId
+  @Prop(String) uid
   @Prop({ default: false }) value
 
   name = ''
+  description = ''
+  points = ''
+
   showDialog = false
-  forbiddenGroup = false
+
   /**
    * Close dialog, triggering v-model event
    */
@@ -79,39 +89,24 @@ export default class DialogGroup extends Vue {
     if (this.$v.$invalid) {
       return
     }
-    const groupId = this.generateRandomId()
-    const ownerUid = localStorage.getItem('uid')
 
-    if (!this.checkGroupName(this.name)) {
-      this.forbiddenGroup = true
-      this.flash(`Group ${this.name} already exist, please choose another name`, 'warning')
-      return
+    const taskId = `task-${this.generateRandomId()}`
+    let data = {
+      taskId: taskId,
+      name: this.name,
+      points: this.points,
+      date: '',
+      groupId: this.groupId,
+      description: this.description
     }
-    this.forbiddenGroup = false
-    FirebaseService.createGroup(groupId, this.name, ownerUid)
+
+    FirebaseService.createTask(taskId, data)
       .then(() => {
-        this.closeDialog()
-        this.flash(`Group ${this.name} succesfully created`, 'success')
+        this.flash('Task succesfully added', 'success')
       })
       .catch(err => {
-        this.flash(err.message, 'error')
+        this.flash(err.message, 'success')
       })
-  }
-
-  /**
-   * Checks if group name is taken
-   * @param  {String} name
-   * @return {Boolean} true, if group name is available
-   */
-  checkGroupName (name) {
-    let available = true
-    let ownGroups = this.$store.state.user.ownGroups
-    ownGroups.map(group => {
-      if (group.name.toLowerCase() === name.toLowerCase()) {
-        available = false
-      }
-    })
-    return available
   }
 
   /**
@@ -121,7 +116,6 @@ export default class DialogGroup extends Vue {
   initData () {
     this.showDialog = this.value
     this.name = ''
-    this.forbiddenGroup = false
   }
 }
 </script>

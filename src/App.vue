@@ -1,11 +1,11 @@
 <template>
   <v-app id="app">
-    <v-toolbar app absolute flat color="white">
+    <v-toolbar app absolute flat dark color="black">
       <v-toolbar-title class="toolbar-title" @click="redirect">Shared Duties Dashboard</v-toolbar-title>
       <v-spacer></v-spacer>
       <v-toolbar-items v-if="!forbiddenRoute">
         <v-menu offset-y>
-          <v-icon large slot="activator" fab color="black">account_circle</v-icon>
+          <v-icon large slot="activator" fab color="white">account_circle</v-icon>
           <v-list>
             <v-list-tile>
               <v-list-tile-title>Settings</v-list-tile-title>
@@ -13,15 +13,12 @@
           </v-list>
         </v-menu>
       </v-toolbar-items>
-      <span v-if="forbiddenRoute">
-
-      </span>
-      <span v-else>
-        <v-btn color="black" dark @click="signOut">sign out</v-btn>
-      </span>
+      <div class="ml-3">
+      <v-btn v-if="!forbiddenRoute" color="error" dark @click="signOut">sign out</v-btn>
+      </div>
     </v-toolbar>
     <FlashMessage />
-    <router-view class="mt-5"/>
+    <router-view class="mt-5 pt-5"/>
   </v-app>
 </template>
 
@@ -58,7 +55,6 @@ export default class App extends Vue {
           window.location.pathname = '/home'
         }
         this.userSignedIn = false
-        this.flash('You are not signed in', 'warning')
       } else {
         this.userSignedIn = true
         if (this.forbiddenRoute) {
@@ -67,13 +63,13 @@ export default class App extends Vue {
         this.setUserEmail(user.email)
         localStorage.setItem('userEmail', user.email)
         localStorage.setItem('uid', user.uid)
-        this.flash('Succesfully signed in', 'success')
       }
     })
   }
 
   /**
    * Sign out
+   * @return {Promise}
    */
   signOut () {
     FirebaseService.signOut()
@@ -86,18 +82,19 @@ export default class App extends Vue {
       })
   }
 
+  /**
+   * Redirect to Dashboard if signed in
+   */
   redirect () {
     if (this.userSignedIn) {
       this.$router.replace('/dashboard')
-    } else {
-      return
     }
   }
 
   /**
    * Watcher for $route.params, decides if the current route is forbidden
    */
-  @Watch('$route.params')
+  @Watch('$route')
   isForbidden () {
     if (this.$route.name === 'home' || this.$route.name === 'login' || this.$route.name === 'signup') {
       this.forbiddenRoute = true
@@ -108,7 +105,7 @@ export default class App extends Vue {
 }
 </script>
 
-<style>
+<style lang="stylus">
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -122,4 +119,5 @@ export default class App extends Vue {
 .toolbar-title {
   cursor: pointer;
 }
+
 </style>

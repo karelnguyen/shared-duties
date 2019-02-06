@@ -53,6 +53,7 @@
             v-model="password"
             name="password"
             label="password"
+            type="password"
             outline
             class="sign-up-input"
           ></v-text-field>
@@ -63,6 +64,7 @@
             v-model="repeatPassword"
             name="repeatPassword"
             label="repeat password"
+            type="password"
             outline
             class="sign-up-input"
           ></v-text-field>
@@ -78,7 +80,7 @@
 </template>
 
 <script>
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import FirebaseService from '@/services/firebase'
 import { required, email, sameAs } from 'vuelidate/lib/validators'
 
@@ -175,16 +177,6 @@ export default class SignUp extends Vue {
   addUserToDb (uid, data) {
     FirebaseService.writeUserData(uid, data)
   }
-
-  // async checkUsername (username) {
-  //   this.$v.username.$touch()
-  //   if (await this.isUsernameAvailable(username)) {
-  //     this.forbiddenUsername = false
-  //   } else {
-  //     this.forbiddenUsername = true
-  //   }
-  //   console.log(this.forbiddenUsername)
-  // }
 }
 </script>
 
