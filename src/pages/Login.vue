@@ -75,6 +75,7 @@ export default class Login extends Vue {
     }
     FirebaseService.signIn(email, password)
       .then(() => {
+        this.$router.push('/dashboard')
         this.flash('Succesfully logged in', 'success')
       })
       .catch(err => {

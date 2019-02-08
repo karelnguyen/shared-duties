@@ -37,12 +37,22 @@
                       <div class="subheading font-weight-bold">
                         {{ownerData.username}}
                       </div>
-                      <span
+                      <div>
+                        <span
                         class="mr-2 subheading font-weight-bold"
                         v-for="member in membersData"
                         :key="member.uid">
                         <span>{{member.username}}</span>
                       </span>
+                      </div>
+                      <div>
+                        <span
+                          v-for="task in tasksData"
+                          :key="task.taskId"
+                          class="mr-2 subheading font-weight-bold">
+                        <span>{{task.name}}</span>
+                      </span>
+                      </div>
                     </v-flex>
                   </v-layout>
                 </v-card-text>
@@ -68,7 +78,7 @@
     <DialogTask
       v-model="dialogs.showTaskDialog"
       :editMode="false"
-      :groupId="groupData.groupId"
+      :groupData="groupData"
     />
   </v-container>
 </template>
@@ -95,6 +105,7 @@ export default class GroupDetail extends Vue {
   membersData = []
   ownerData = {}
   groupData = {}
+  tasksData = []
   loading = true
   isOwner = false
   dialogs = {
@@ -113,10 +124,15 @@ export default class GroupDetail extends Vue {
       let response = snapshot.val()
       if (response) {
         this.groupData = this.avoidIdObjectName(response)
+        this.getGroupOwnerData(this.groupData.owner)
         this.groupData.members.map(memberId => {
           this.getUserData(memberId)
         })
-        this.getGroupOwnerData(this.groupData.owner)
+        if (this.groupData.tasks) {
+          this.groupData.tasks.map(taskId => {
+            this.getTaskData(taskId)
+          })
+        }
       }
     })
   }
@@ -154,6 +170,24 @@ export default class GroupDetail extends Vue {
       this.loading = false
       if (this.ownerData.uid === localStorage.getItem('uid')) {
         this.isOwner = true
+      }
+    })
+  }
+
+  /**
+   * Get task data
+   * @param  {String} taskId
+   * @return {Promise}
+   */
+  getTaskData (taskId) {
+    let data = this.tasksData
+    return FirebaseService.searchByValueRef('/tasks', 'taskId', taskId).on('value', snapshot => {
+      let response = snapshot.val()
+      response = this.avoidIdObjectName(response)
+      let duplicateKey = _.find(data, { 'taskId': taskId })
+      if (!duplicateKey) {
+        data.push(response)
+        this.tasksData = data
       }
     })
   }

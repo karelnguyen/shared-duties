@@ -12,19 +12,35 @@
         <span class="mr-1" v-if="!editMode">Add</span> <span v-else>Edit</span>Task
       </v-card-title>
 
-      <v-card-text>
-        <v-text-field
-          :error-messages="vErrors('name')"
-          v-model="name"
-          name="name"
-          label="Task name"
-        ></v-text-field>
-        <v-text-field
-          v-model="description"
-          name="description"
-          label="Description"
-        ></v-text-field>
-      </v-card-text>
+      <v-container grid-list-sm>
+        <v-card-text>
+          <v-text-field
+            :error-messages="vErrors('name')"
+            v-model="name"
+            name="name"
+            label="Task name"
+            prepend-icon="assignment"
+          ></v-text-field>
+          <v-text-field
+            v-model="description"
+            name="description"
+            label="Description"
+            prepend-icon="description"
+          ></v-text-field>
+          <DatePicker v-model="date" />
+          Task complexity
+          <v-rating
+            v-model="ratingData.rating"
+            full-icon="offline_bolt"
+            empty-icon="offline_bolt"
+            :hover="ratingData.hover"
+            :length="ratingData.length"
+            background-color="grey lighten-1"
+            color="blue"
+            medium
+          ></v-rating>
+        </v-card-text>
+      </v-container>
 
       <v-divider></v-divider>
 
@@ -47,9 +63,13 @@
 import { Prop, Component, Watch, Vue } from 'vue-property-decorator'
 import { required } from 'vuelidate/lib/validators'
 import FirebaseService from '@/services/firebase'
+import DatePicker from '@/components/DatePicker'
 
 @Component({
   name: 'DialogTask',
+  components: {
+    DatePicker
+  },
   validations: {
     name: {
       required
@@ -61,13 +81,20 @@ import FirebaseService from '@/services/firebase'
  */
 export default class DialogTask extends Vue {
   @Prop(Boolean) editMode
-  @Prop(String) groupId
+  @Prop(Object) groupData
   @Prop(String) uid
   @Prop({ default: false }) value
 
   name = ''
   description = ''
-  points = ''
+  date = ''
+  pickerDialog = false
+
+  ratingData = {
+    hover: true,
+    length: 5,
+    rating: 0
+  }
 
   showDialog = false
 
@@ -94,18 +121,42 @@ export default class DialogTask extends Vue {
     let data = {
       taskId: taskId,
       name: this.name,
-      points: this.points,
-      date: '',
-      groupId: this.groupId,
+      rating: this.ratingData.rating,
+      date: this.date,
+      groupId: this.groupData.groupId,
       description: this.description
     }
 
     FirebaseService.createTask(taskId, data)
       .then(() => {
+        this.addTaskIdToGroupData(this.groupData.groupId, taskId)
         this.flash('Task succesfully added', 'success')
       })
       .catch(err => {
         this.flash(err.message, 'success')
+      })
+  }
+
+  /**
+   * Add task to group (to tasks property)
+   * @param  {String} groupId
+   * @return {Promise}
+   */
+  addTaskIdToGroupData (groupId, taskId) {
+    let data = this.groupData
+    if (!data.tasks) {
+      data['tasks'] = []
+      data['tasks'].push(taskId)
+    } else {
+      data['tasks'].push(taskId)
+    }
+    return FirebaseService.updateGroup(groupId, data)
+      .then(() => {
+        this.closeDialog()
+        this.flash('Added new task to group', 'success')
+      })
+      .catch(err => {
+        this.flash(err.message, 'error')
       })
   }
 
@@ -116,6 +167,12 @@ export default class DialogTask extends Vue {
   initData () {
     this.showDialog = this.value
     this.name = ''
+    this.description = ''
+    this.ratingData = {
+      hover: true,
+      length: 5,
+      rating: 0
+    }
   }
 }
 </script>

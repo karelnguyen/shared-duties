@@ -44,28 +44,28 @@ export default class App extends Vue {
   /**
    * On component creation
    */
-  created () {
-    this.isForbidden()
-    /**
-     * Auth observer checks if user is signed in, otherwise it will redirect to Home Page
-     */
-    FirebaseService.authRequest().onAuthStateChanged(user => {
-      if (!user) {
-        if (!this.forbiddenRoute) {
-          window.location.pathname = '/home'
-        }
-        this.userSignedIn = false
-      } else {
-        this.userSignedIn = true
-        if (this.forbiddenRoute) {
-          window.location.pathname = '/dashboard'
-        }
-        this.setUserEmail(user.email)
-        localStorage.setItem('userEmail', user.email)
-        localStorage.setItem('uid', user.uid)
-      }
-    })
-  }
+  // created () {
+  //   this.isForbidden()
+  //   /**
+  //    * Auth observer checks if user is signed in, otherwise it will redirect to Home Page
+  //    */
+  //   FirebaseService.authRequest().onAuthStateChanged(user => {
+  //     if (!user) {
+  //       if (!this.forbiddenRoute) {
+  //         window.location.pathname = '/home'
+  //       }
+  //       this.userSignedIn = false
+  //     } else {
+  //       this.userSignedIn = true
+  //       if (this.forbiddenRoute) {
+  //         window.location.pathname = '/dashboard'
+  //       }
+  //       this.setUserEmail(user.email)
+  //       localStorage.setItem('userEmail', user.email)
+  //       localStorage.setItem('uid', user.uid)
+  //     }
+  //   })
+  // }
 
   /**
    * Sign out
@@ -112,9 +112,10 @@ export default class App extends Vue {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: white;
-  background: #DA4453;  /* fallback for old browsers */
-  background: -webkit-linear-gradient(to right, #89216B, #DA4453);  /* Chrome 10-25, Safari 5.1-6 */
-  background: linear-gradient(to right, #89216B, #DA4453); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+  background-image: url('https://cdn.vuetifyjs.com/images/parallax/material.jpg')
+  background-repeat: no-repeat
+  background-position: contain;
+  background-size: 100vw
 }
 .toolbar-title {
   cursor: pointer;

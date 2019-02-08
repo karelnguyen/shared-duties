@@ -18,6 +18,7 @@
           v-model="name"
           name="name"
           label="name"
+          prepend-icon="group_add"
         ></v-text-field>
       </v-card-text>
 

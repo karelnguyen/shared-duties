@@ -2,6 +2,25 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
 
+/**
+ * Initialization of Firebase
+ * @param  {Object} config
+ */
+function initFirebaseApp (config) {
+  /*
+    Firebase init
+   */
+  firebase.initializeApp(config)
+  /* eslint-disable */
+  /*
+    Initializing db
+   */
+  const db = firebase.database().ref()
+  db.child('/users')
+  db.child('/groups')
+  db.child('/tasks')
+}
+
 /*
   Firebase authentication service
  */
@@ -161,7 +180,8 @@ const FirebaseService = {
   authRequest,
   updateGroup,
   updateUser,
-  createTask
+  createTask,
+  initFirebaseApp
 }
 
 export default FirebaseService

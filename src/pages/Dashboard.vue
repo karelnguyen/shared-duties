@@ -1,21 +1,21 @@
 <template>
   <v-container grid-list-sm>
-    <v-tabs class="pb-1" dark left color="black" slider-color="red" slot="extension" v-model="tab">
+    <v-tabs class="pb-1" dark left color="black" slider-color="red" v-model="tab">
       <v-tab
-      v-for="tabs in ['overview', 'calendar']"
-      :key="tabs"
-      :href="`#tab-${tabs}`"
-      >
-      {{ tabs }}
-    </v-tab>
-  </v-tabs>
+        v-for="tabs in ['overview', 'calendar']"
+        :key="tabs"
+        :href="`#tab-${tabs}`"
+        >
+        {{ tabs }}
+      </v-tab>
+    </v-tabs>
 
-    <v-card tile>
+    <v-card flat>
       <v-tabs-items v-model="tab">
         <v-tab-item
           value="tab-overview"
         >
-          <v-layout row wrap justify-space-between>
+          <v-layout>
             <v-flex xs12 lg8>
                 <v-layout row wrap>
                   <v-flex>
@@ -127,26 +127,28 @@
               </v-layout>
             </v-flex>
           </v-layout>
+          <v-divider></v-divider>
+          <v-layout row wrap justify-space-between>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="black" dark @click="showDialog = true">Add group</v-btn>
+            </v-card-actions>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="black" dark >Edit profile</v-btn>
+            </v-card-actions>
+          </v-layout>
         </v-tab-item>
+
         <v-tab-item
           value="tab-calendar"
         >
           <v-card flat>
-            <v-card-text>neco 2</v-card-text>
+            <Calendar/>
           </v-card>
         </v-tab-item>
+
       </v-tabs-items>
-      <v-divider></v-divider>
-      <v-layout row wrap justify-space-between>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="black" dark @click="showDialog = true">Add group</v-btn>
-        </v-card-actions>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="black" dark >Edit profile</v-btn>
-        </v-card-actions>
-      </v-layout>
     </v-card>
   </v-container>
 </template>
@@ -155,12 +157,13 @@
 import { Component, Vue } from 'vue-property-decorator'
 import FirebaseService from '@/services/firebase'
 import DialogGroup from '@/components/DialogGroup'
+import Calendar from '@/components/Calendar'
 import { mapActions, mapState } from 'vuex'
 
 @Component({
   name: 'Dashboard',
   components: {
-    DialogGroup
+    DialogGroup, Calendar
   },
   methods: mapActions(['setUserEmail', 'setOwnGroups', 'setForeignGroups']),
   computed: mapState({

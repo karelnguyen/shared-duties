@@ -33,12 +33,14 @@ export default new Router({
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: Dashboard
+      component: Dashboard,
+      meta: { conditionalRoute: true }
     },
     {
       path: '/groups/:groupName',
       name: 'groupDetail',
-      component: GroupDetail
+      component: GroupDetail,
+      meta: { conditionalRoute: true }
     }
   ]
 })
