@@ -6,6 +6,8 @@
         :key="tabs"
         :href="`#tab-${tabs}`"
         >
+        <v-icon class="mr-2" v-if="tabs === 'calendar'">event</v-icon>
+        <v-icon class="mr-2" v-else>store</v-icon>
         {{ tabs }}
       </v-tab>
     </v-tabs>
@@ -23,9 +25,9 @@
                       class="headline lighten-2"
                       primary-title
                       >
+                      <v-icon class="mr-4">folder_shared</v-icon>
                       Groups
                       <v-spacer></v-spacer>
-                      <v-icon>all_inbox</v-icon>
                     </v-card-title>
                     <v-divider></v-divider>
                     <v-card-text>
@@ -35,34 +37,55 @@
                         color="primary"
                       ></v-progress-circular>
                       <v-flex  class="text-sm-left" v-else>
-                        <div class="font-weight-bold subheading">
-                          Groups that I own:
+                        <div class="font-weight-bold title mb-3">
+                          My groups
                         </div>
-                        <span v-for="oGroups in ownGroups" :key="oGroups.groupId">
-                          <v-btn
-                            outline
-                            round
-                            color="primary"
-                            class="ml-2"
-                            @click="redirectToGroupDetail(oGroups.groupId, oGroups.name)"
-                          >
-                            {{oGroups.name}}
-                          </v-btn>
-                        </span>
-                        <div class="font-weight-bold subheading">
-                          Groups that I am a member of:
+                        <v-container grid-list-md>
+                          <v-layout row wrap>
+                            <v-flex xs3 v-for="oGroups in ownGroups" :key="oGroups.groupId">
+                              <v-card class="group-card" hover @click="redirectToGroupDetail(oGroups.groupId, oGroups.name)">
+                                <v-card-title
+                                  class="subheading black lighten-4"
+                                >
+                                  <v-layout row wrap justify-space-between>
+                                    <v-flex xs9 class="text-truncate group-title own-card-title">
+                                      <span>{{oGroups.name}}</span>
+                                    </v-flex>
+                                    <v-icon dark>folder_shared</v-icon>
+                                  </v-layout>
+                                </v-card-title>
+                                <v-card-text>
+                                  {{oGroups.name}}
+                                </v-card-text>
+                              </v-card>
+                            </v-flex>
+                          </v-layout>
+                        </v-container>
+                        <v-divider class="mt-4 mb-4"></v-divider>
+                        <div class="font-weight-bold title mb-3">
+                          I am a member of
                         </div>
-                        <span v-for="fGroups in foreignGroups" :key="fGroups.groupId">
-                          <v-btn
-                            outline
-                            round
-                            color="warning"
-                            class="ml-2"
-                            @click="redirectToGroupDetail(fGroups.groupId, fGroups.name)"
-                          >
-                            {{fGroups.name}}
-                          </v-btn>
-                        </span>
+                        <v-container grid-list-md>
+                          <v-layout row wrap>
+                            <v-flex xs3 v-for="fGroups in foreignGroups" :key="fGroups.groupId">
+                              <v-card class="group-card" hover @click="redirectToGroupDetail(fGroups.groupId, fGroups.name)">
+                                <v-card-title
+                                  class="subheading black lighten-2 card-title"
+                                >
+                                  <v-layout row wrap justify-space-between>
+                                    <v-flex xs9 class="text-truncate group-title foreign-group-title">
+                                      <span>{{fGroups.name}}</span>
+                                    </v-flex>
+                                    <v-icon dark>folder_shared</v-icon>
+                                  </v-layout>
+                                </v-card-title>
+                                <v-card-text>
+                                  {{fGroups.name}}
+                                </v-card-text>
+                              </v-card>
+                            </v-flex>
+                          </v-layout>
+                        </v-container>
                       </v-flex>
                     </v-card-text>
 
@@ -81,39 +104,25 @@
                   class="headline lighten-2"
                   primary-title
                   >
+                  <v-icon class="mr-4">contacts</v-icon>
                   User
                   <v-spacer></v-spacer>
-                  <v-icon>supervisor_account</v-icon>
                 </v-card-title>
                 <v-divider></v-divider>
                 <v-card-text>
-                  <v-layout row wrap v-if="!isObjectEmpty(userData)">
-                    <v-flex xs2 lg6 class="text-sm-left">
-                      <div class="subheading">
-                        first name:
-                      </div>
-                      <div class="subheading">
-                        last name:
-                      </div>
-                      <div class="subheading">
-                        username:
-                      </div>
-                      <div class="subheading">
-                        email:
-                      </div>
-                    </v-flex>
-                    <v-flex xs6 class="text-sm-left">
+                  <v-layout column wrap v-if="!isObjectEmpty(userData)">
+                    <v-icon style="font-size: 120px" class="mt-5 mb-5">account_circle</v-icon>
+                    <v-flex xs6 class="text-sm-center">
                       <div class="subheading font-weight-bold">
-                        {{userData[uid].firstName}}
+                        {{`${userData.firstName} ${userData.lastName}`}}
                       </div>
                       <div class="subheading font-weight-bold">
-                        {{userData[uid].lastName}}
                       </div>
                       <div class="subheading font-weight-bold">
-                        {{userData[uid].username}}
+                        {{userData.username}}
                       </div>
                       <div class="subheading font-weight-bold">
-                        {{userData[uid].email}}
+                        {{userData.email}}
                       </div>
                     </v-flex>
                   </v-layout>
@@ -195,7 +204,7 @@ export default class Dashboard extends Vue {
    */
   getUserInfo (uid) {
     return FirebaseService.searchByValueRef('/users', 'uid', uid).on('value', snapshot => {
-      this.userData = snapshot.val()
+      this.userData = this.avoidIdObjectName(snapshot.val())
     })
   }
 
@@ -252,5 +261,20 @@ export default class Dashboard extends Vue {
 <style lang="stylus" scoped>
   .nav-profile-section {
     height: 50px
+  }
+  /* .group-card {
+    cursor: pointer
+  }
+  .group-card:hover {
+    box-shadow: 0 19px 38px rgba(0,0,0,0.30), 0 15px 12px rgba(0,0,0,0.22)
+  } */
+  .group-title {
+    color: white
+  }
+  .own-card-title {
+    border-bottom: 2px solid #EF5350
+  }
+  .foreign-group-title {
+    border-bottom: 2px solid #1E88E5
   }
 </style>

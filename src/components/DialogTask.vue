@@ -27,8 +27,11 @@
             label="Description"
             prepend-icon="description"
           ></v-text-field>
-          <DatePicker v-model="date" />
-          Task complexity
+          <DatePicker
+            v-model="date"
+            class="mb-3"
+          />
+          <span>Task complexity</span>
           <v-rating
             v-model="ratingData.rating"
             full-icon="offline_bolt"
@@ -36,7 +39,7 @@
             :hover="ratingData.hover"
             :length="ratingData.length"
             background-color="grey lighten-1"
-            color="blue"
+            color="yellow darken-1"
             medium
           ></v-rating>
         </v-card-text>
@@ -118,15 +121,22 @@ export default class DialogTask extends Vue {
     }
 
     const taskId = `task-${this.generateRandomId()}`
+
     let data = {
       taskId: taskId,
       name: this.name,
       rating: this.ratingData.rating,
-      date: this.date,
+      date: this.date ? this.date : '',
       groupId: this.groupData.groupId,
-      description: this.description
+      description: this.description,
+      done: false,
+      owner: '',
+      review: {
+        up: [],
+        down: []
+      }
     }
-
+    
     FirebaseService.createTask(taskId, data)
       .then(() => {
         this.addTaskIdToGroupData(this.groupData.groupId, taskId)
@@ -153,7 +163,6 @@ export default class DialogTask extends Vue {
     return FirebaseService.updateGroup(groupId, data)
       .then(() => {
         this.closeDialog()
-        this.flash('Added new task to group', 'success')
       })
       .catch(err => {
         this.flash(err.message, 'error')
@@ -168,6 +177,7 @@ export default class DialogTask extends Vue {
     this.showDialog = this.value
     this.name = ''
     this.description = ''
+    this.date = ''
     this.ratingData = {
       hover: true,
       length: 5,

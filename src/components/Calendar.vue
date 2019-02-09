@@ -1,17 +1,6 @@
 <template>
   <v-layout wrap>
     <v-flex xs12>
-      <v-tabs class="pb-1" center slider-color="red" slot="extension" v-model="tab">
-        <v-tab
-          v-for="tabs in ['personal', 'group']"
-          :key="tabs"
-          :href="`#tab-${tabs}`"
-          >
-          {{ tabs }}
-        </v-tab>
-      </v-tabs>
-    </v-flex>
-    <v-flex xs12>
       <v-flex
         xs12
         class="mb-3"
@@ -68,7 +57,6 @@ import { Component, Vue } from 'vue-property-decorator'
  * Calendar Component
  */
 export default class Calendar extends Vue {
-  tab = 'tab-personal'
 }
 </script>
 

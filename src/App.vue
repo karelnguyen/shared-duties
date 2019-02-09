@@ -1,9 +1,10 @@
 <template>
   <v-app id="app">
     <v-toolbar app absolute flat dark color="black">
-      <v-toolbar-title class="toolbar-title" @click="redirect">Shared Duties Dashboard</v-toolbar-title>
+      <v-toolbar-title v-if="userSignedIn" class="toolbar-title toolbar-title-access" @click="$router.replace('/dashboard')"><v-icon class="mr-2">dashboard</v-icon>Dashboard</v-toolbar-title>
+      <v-toolbar-title v-else class="toolbar-title">Shared Duties</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items v-if="!forbiddenRoute">
+      <v-toolbar-items v-if="userSignedIn">
         <v-menu offset-y>
           <v-icon large slot="activator" fab color="white">account_circle</v-icon>
           <v-list>
@@ -14,7 +15,7 @@
         </v-menu>
       </v-toolbar-items>
       <div class="ml-3">
-      <v-btn v-if="!forbiddenRoute" color="error" dark @click="signOut">sign out</v-btn>
+      <v-btn v-if="userSignedIn" color="error" dark @click="signOut">sign out</v-btn>
       </div>
     </v-toolbar>
     <FlashMessage />
@@ -23,7 +24,7 @@
 </template>
 
 <script>
-import { Component, Vue, Watch } from 'vue-property-decorator'
+import { Component, Vue } from 'vue-property-decorator'
 import { mapActions } from 'vuex'
 import FirebaseService from '@/services/firebase'
 import FlashMessage from '@/components/FlashMessage'
@@ -39,33 +40,22 @@ import FlashMessage from '@/components/FlashMessage'
  * App Page
  */
 export default class App extends Vue {
-  forbiddenRoute = null
   userSignedIn = false
   /**
    * On component creation
    */
-  // created () {
-  //   this.isForbidden()
-  //   /**
-  //    * Auth observer checks if user is signed in, otherwise it will redirect to Home Page
-  //    */
-  //   FirebaseService.authRequest().onAuthStateChanged(user => {
-  //     if (!user) {
-  //       if (!this.forbiddenRoute) {
-  //         window.location.pathname = '/home'
-  //       }
-  //       this.userSignedIn = false
-  //     } else {
-  //       this.userSignedIn = true
-  //       if (this.forbiddenRoute) {
-  //         window.location.pathname = '/dashboard'
-  //       }
-  //       this.setUserEmail(user.email)
-  //       localStorage.setItem('userEmail', user.email)
-  //       localStorage.setItem('uid', user.uid)
-  //     }
-  //   })
-  // }
+  created () {
+    /**
+     * Auth observer checks if user is signed in, otherwise it will redirect to Home Page
+     */
+    FirebaseService.authRequest().onAuthStateChanged(user => {
+      if (!user) {
+        this.userSignedIn = false
+      } else {
+        this.userSignedIn = true
+      }
+    })
+  }
 
   /**
    * Sign out
@@ -74,33 +64,12 @@ export default class App extends Vue {
   signOut () {
     FirebaseService.signOut()
       .then(() => {
-        this.userSignedIn = true
+        this.userSignedIn = false
         this.flash('Succesfully signed out', 'info')
       })
       .catch(err => {
         this.flash(err.message, 'error')
       })
-  }
-
-  /**
-   * Redirect to Dashboard if signed in
-   */
-  redirect () {
-    if (this.userSignedIn) {
-      this.$router.replace('/dashboard')
-    }
-  }
-
-  /**
-   * Watcher for $route.params, decides if the current route is forbidden
-   */
-  @Watch('$route')
-  isForbidden () {
-    if (this.$route.name === 'home' || this.$route.name === 'login' || this.$route.name === 'signup') {
-      this.forbiddenRoute = true
-    } else {
-      this.forbiddenRoute = false
-    }
   }
 }
 </script>
@@ -112,13 +81,16 @@ export default class App extends Vue {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: white;
-  background-image: url('https://cdn.vuetifyjs.com/images/parallax/material.jpg')
-  background-repeat: no-repeat
+  background-image: url('./assets/bg.png');
+  background-repeat: no-repeat;
   background-position: contain;
-  background-size: 100vw
+  background-size: 100vw;
+  background-attachment: fixed
 }
 .toolbar-title {
   cursor: pointer;
 }
-
+.toolbar-title-access:hover {
+  color: #EF5350;
+}
 </style>

@@ -3,68 +3,115 @@
     <v-layout row wrap justify-space-between>
       <v-flex xs12>
         <v-card tile min-height="200">
-            <v-layout row wrap>
-              <v-flex>
-                <v-card-title
-                  class="headline lighten-2"
-                  primary-title
-                  >
-                  Group <span class="ml-1" v-if="!isObjectEmpty(groupData)">{{ groupData.name }}</span>
-                  <v-spacer></v-spacer>
-                  <v-icon>all_inbox</v-icon>
-                </v-card-title>
-                <v-divider></v-divider>
-                <v-card-text v-if="loading">
-                  <v-progress-circular
-                    indeterminate
-                    color="primary"
-                  ></v-progress-circular>
+          <v-card-title
+            class="headline lighten-2"
+            primary-title
+            >
+            <span class="ml-1" v-if="!isObjectEmpty(groupData)">{{ groupData.name }}</span>
+            <v-spacer></v-spacer>
+            <v-icon>all_inbox</v-icon>
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-progress-circular
+            v-if="loading"
+            indeterminate
+            color="primary"
+            class="mt-5 mb-5"
+          ></v-progress-circular>
+          <v-layout row wrap v-else>
+            <v-flex v-if="!tasksData.length">
+              <v-layout class="no-data-tasks" row wrap align-center justify-center>
+                <v-card-text>
+                    <span class="display-3">no tasks</span>
                 </v-card-text>
-                <v-card-text v-else>
-                  <v-layout row wrap v-if="!isObjectEmpty(ownerData)">
-                    <v-flex xs2 class="text-sm-left subheading">
-                      <div>
-                        owner:
-                      </div>
-                      <div>
-                        members:
-                      </div>
-                      <div>
-                        tasks:
-                      </div>
-                    </v-flex>
-                    <v-flex xs6 class="text-sm-left">
-                      <div class="subheading font-weight-bold">
-                        {{ownerData.username}}
-                      </div>
-                      <div>
-                        <span
-                        class="mr-2 subheading font-weight-bold"
+              </v-layout>
+            </v-flex>
+            <v-flex xs9 v-else>
+              <v-card-text>
+                <v-layout column wrap>
+                  <v-layout row wrap align-center class="mb-3">
+                    <v-icon class="mr-3">assignment</v-icon>
+                    <span class="headline font-weight-bold">Tasks</span>
+                  </v-layout>
+                  <v-container grid-list-md>
+                    <v-layout row wrap justify-start>
+                      <v-flex xs4 v-for="task in tasksData" :key="task.taskId">
+                        <v-card>
+                          <v-card-title class="subheading font-weight-bold grey lighten-2">
+                            <span>{{task.name}}</span>
+                          </v-card-title>
+                          <v-divider></v-divider>
+                          <v-card-text class="text-sm-left mt-2">
+                            <v-layout row wrap align-center class="mb-2">
+                              <v-icon class="mr-3">description</v-icon>{{task.description}}
+                            </v-layout>
+                            <v-layout row wrap align-center class="mb-2">
+                              <v-icon class="mr-3">offline_bolt</v-icon>{{task.rating}}
+                            </v-layout>
+                            <v-layout row wrap align-center class="mb-2" v-if="task.date">
+                              <v-icon class="mr-3">event</v-icon>{{task.date}}
+                            </v-layout>
+                          </v-card-text>
+                        </v-card>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
+                </v-layout>
+              </v-card-text>
+            </v-flex>
+            <v-flex xs3>
+              <v-card-text>
+                <v-layout row wrap align-center class="mb-4">
+                  <v-icon class="mr-3">info</v-icon>
+                  <span class="headline font-weight-bold">Group Info</span>
+                </v-layout>
+                <v-layout row wrap v-if="!isObjectEmpty(ownerData)" class="group-info">
+                  <v-flex xs4 class="text-sm-left subheading font-weight-bold ml-4">
+                    <v-layout row wrap align-center>
+                      <v-icon class="mr-3">folder_shared</v-icon>
+                      name:
+                    </v-layout>
+                    <v-divider></v-divider>
+                    <v-layout row wrap align-center>
+                      <v-icon class="mr-3">account_box</v-icon>
+                      owner:
+                    </v-layout>
+                    <v-divider></v-divider>
+                    <v-layout row wrap align-center>
+                      <v-icon class="mr-3">people</v-icon>
+                      members:
+                    </v-layout>
+                    <v-divider></v-divider>
+                  </v-flex>
+                  <v-flex xs6 class="text-sm-left">
+                    <div class="subheading font-weight-bold  text-truncate">
+                      {{groupData.name}}
+                    </div>
+                    <v-divider></v-divider>
+                    <div class="subheading font-weight-bold">
+                      {{ownerData.username}}
+                    </div>
+                    <div>
+                      <div
+                        class="subheading font-weight-bold"
                         v-for="member in membersData"
                         :key="member.uid">
-                        <span>{{member.username}}</span>
-                      </span>
+                        <span v-if="member.username !== ownerData.username">{{member.username}}</span>
+                        <v-divider></v-divider>
                       </div>
-                      <div>
-                        <span
-                          v-for="task in tasksData"
-                          :key="task.taskId"
-                          class="mr-2 subheading font-weight-bold">
-                        <span>{{task.name}}</span>
-                      </span>
-                      </div>
-                    </v-flex>
-                  </v-layout>
-                </v-card-text>
-                <v-spacer></v-spacer>
-                <v-divider></v-divider>
-                <v-card-actions>
-                  <v-btn color="black" @click="dialogs.showTaskDialog = true" dark >Add task</v-btn>
-                  <v-spacer></v-spacer>
-                  <v-btn :disabled="!isOwner" color="black" @click="dialogs.showMemberDialog = true" dark >Add member</v-btn>
-                </v-card-actions>
-            </v-flex>
+                    </div>
+                  </v-flex>
+                </v-layout>
+              </v-card-text>
+          </v-flex>
           </v-layout>
+          <v-spacer></v-spacer>
+          <v-divider></v-divider>
+          <v-card-actions>
+            <v-btn color="black" @click="dialogs.showTaskDialog = true" dark >Add task</v-btn>
+            <v-spacer></v-spacer>
+            <v-btn :disabled="!isOwner" color="black" @click="dialogs.showMemberDialog = true" dark >Add member</v-btn>
+          </v-card-actions>
         </v-card>
       </v-flex>
     </v-layout>
@@ -198,6 +245,7 @@ export default class GroupDetail extends Vue {
   initData () {
     this.loading = true
     this.membersData = []
+
     this.ownerData = {}
     this.groupData = {}
     this.dialogs.showMemberDialog = false
@@ -218,5 +266,11 @@ export default class GroupDetail extends Vue {
 </script>
 
 <style lang="stylus" scoped>
-
+.group-info {
+  line-height: 2.5
+}
+.no-data-tasks {
+  color: #BDBDBD
+  height: 100%
+}
 </style>
