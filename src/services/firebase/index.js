@@ -135,13 +135,8 @@ function updateUser (uid, data) {
  * @param  {Array}  [tasks=[]]
  * @return {Promise}
  */
-function createGroup (groupId, name, owner, members = [owner]) {
-  return firebaseRequest('groups/' + groupId).set({
-    groupId: groupId,
-    name: name,
-    owner: owner,
-    members: members
-  })
+function createGroup (groupId, data) {
+  return firebaseRequest('groups/' + groupId).set(data)
 }
 
 /**

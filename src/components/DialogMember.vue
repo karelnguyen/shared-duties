@@ -32,7 +32,7 @@
             <v-flex>
               {{searchedUser.email}}
             </v-flex>
-            <v-btn v-if="!forbiddenUser" flat color="green" dark small @click="addUserIdToGroupData()"><v-icon>check</v-icon>add</v-btn>
+            <v-btn v-if="!forbiddenUser" flat color="green" dark small @click="addUserToGroupData()"><v-icon>check</v-icon>add</v-btn>
           </v-layout>
         </div>
       </v-card-text>
@@ -59,8 +59,7 @@ import FirebaseService from '@/services/firebase'
  */
 export default class DialogMember extends Vue {
   @Prop(Boolean) editMode
-  @Prop(Array) members
-  @Prop(String) groupId
+  @Prop(Object) groupData
   @Prop({ default: false }) value
 
   searchedUser = {}
@@ -89,7 +88,7 @@ export default class DialogMember extends Vue {
       let response = snapshot.val()
       if (response) {
         this.searchedUser = this.avoidIdObjectName(response)
-        if (this.members.includes(this.searchedUser.uid)) {
+        if (this.groupData.members.includes(this.searchedUser.uid)) {
           this.forbiddenUser = true
         }
       } else {
@@ -102,15 +101,19 @@ export default class DialogMember extends Vue {
    * Add user to group (to members property)
    */
   @Emit('refresh')
-  addUserIdToGroupData () {
-    let newMembers = this.members
+  addUserToGroupData () {
+    let newMembers = this.groupData.members
     newMembers.push(this.searchedUser.uid)
+    let colors = Object.assign(this.groupData.colors, {
+      [this.searchedUser.uid]: this.generateRandomColor()
+    })
     let data = {
-      members: newMembers
+      members: newMembers,
+      colors: colors
     }
-    return FirebaseService.updateGroup(this.groupId, data)
+    return FirebaseService.updateGroup(this.groupData.groupId, data)
       .then(() => {
-        this.addGroupIdToUserData(this.groupId, this.searchedUser.uid)
+        this.addGroupIdToUserData(this.groupData.groupId, this.searchedUser.uid)
         this.closeDialog()
         this.flash('Added new member to group', 'success')
       })

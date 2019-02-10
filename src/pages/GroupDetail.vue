@@ -41,15 +41,24 @@
                             <span>{{task.name}}</span>
                           </v-card-title>
                           <v-divider></v-divider>
-                          <v-card-text class="text-sm-left mt-2">
+                          <v-card-text class="text-sm-left mt-2 font-weight-bold">
                             <v-layout row wrap align-center class="mb-2">
-                              <v-icon class="mr-3">description</v-icon>{{task.description}}
+                              <div class="text-truncate">
+                                <v-icon class="mr-3">description</v-icon>{{task.description}}
+                              </div>
                             </v-layout>
                             <v-layout row wrap align-center class="mb-2">
                               <v-icon class="mr-3">offline_bolt</v-icon>{{task.rating}}
                             </v-layout>
                             <v-layout row wrap align-center class="mb-2" v-if="task.date">
-                              <v-icon class="mr-3">event</v-icon>{{task.date}}
+                              <v-icon class="mr-3">event</v-icon>{{task.date | formatDate}}
+                            </v-layout>
+                            <v-layout row wrap align-center class="mb-2" v-if="task.owner">
+                              <v-icon
+                                :color="groupData.colors[task.owner]"
+                                class="mr-3">account_box
+                              </v-icon>
+                              <span>{{task.ownerUsername}}</span>
                             </v-layout>
                           </v-card-text>
                         </v-card>
@@ -84,19 +93,23 @@
                     <v-divider></v-divider>
                   </v-flex>
                   <v-flex xs6 class="text-sm-left">
-                    <div class="subheading font-weight-bold  text-truncate">
-                      {{groupData.name}}
-                    </div>
+                    <v-layout row wrap align-content-center class="subheading font-weight-bold text-truncate">
+                      <span>{{groupData.name}}</span>
+                    </v-layout>
                     <v-divider></v-divider>
                     <div class="subheading font-weight-bold">
-                      {{ownerData.username}}
+                      <span class="mr-4">{{ownerData.username}}</span>
+                      <span :style="`color: ${groupData.colors[ownerData.uid]}`">&#11044;</span>
                     </div>
                     <div>
                       <div
                         class="subheading font-weight-bold"
                         v-for="member in membersData"
                         :key="member.uid">
-                        <span v-if="member.username !== ownerData.username">{{member.username}}</span>
+                        <span v-if="member.username !== ownerData.username">
+                          <span class="mr-4">{{member.username}}</span>
+                          <span :style="`color: ${groupData.colors[member.uid]}`">&#11044;</span>
+                        </span>
                         <v-divider></v-divider>
                       </div>
                     </div>
@@ -113,13 +126,22 @@
             <v-btn :disabled="!isOwner" color="black" @click="dialogs.showMemberDialog = true" dark >Add member</v-btn>
           </v-card-actions>
         </v-card>
+
+        <v-card class="mt-3">
+          <v-card-title class="headline">
+            Group Calendar
+          </v-card-title>
+          <v-divider></v-divider>
+          <v-card-text>
+            <Calendar :tasksData="tasksData"/>
+          </v-card-text>
+        </v-card>
       </v-flex>
     </v-layout>
     <DialogMember
       v-model="dialogs.showMemberDialog"
       :editMode="false"
-      :groupId="groupData.groupId"
-      :members="groupData.members"
+      :groupData="groupData"
       @refresh="getGroupData(currentGroupId)"
     />
     <DialogTask
@@ -135,13 +157,15 @@ import { Component, Vue } from 'vue-property-decorator'
 import FirebaseService from '@/services/firebase'
 import DialogMember from '@/components/DialogMember'
 import DialogTask from '@/components/DialogTask'
+import Calendar from '@/components/Calendar'
 import _ from 'lodash'
 
 @Component({
   name: 'GroupDetail',
   components: {
     DialogMember,
-    DialogTask
+    DialogTask,
+    Calendar
   }
 })
 /**
@@ -149,6 +173,8 @@ import _ from 'lodash'
  */
 export default class GroupDetail extends Vue {
   currentGroupId = localStorage.getItem('currentGroupId')
+  currentUid = localStorage.getItem('uid')
+  usersMapper = []
   membersData = []
   ownerData = {}
   groupData = {}
@@ -184,6 +210,16 @@ export default class GroupDetail extends Vue {
     })
   }
 
+  findUsername (uid) {
+    let username = ''
+    this.membersData.find(el => {
+      if (el.uid === uid) {
+        username = el.username
+      }
+    })
+    return username
+  }
+
   /**
    * Get user data
    * @param  {String} uid
@@ -191,13 +227,16 @@ export default class GroupDetail extends Vue {
    */
   getUserData (uid) {
     let data = this.membersData
+    let userMap = this.usersMapper
     return FirebaseService.searchByValueRef('/users', 'uid', uid).on('value', snapshot => {
       let response = snapshot.val()
       if (response) {
         response = this.avoidIdObjectName(response)
         let duplicateKey = _.find(data, { 'uid': uid })
         if (!duplicateKey) {
+          userMap.push(snapshot.val())
           data.push(response)
+          this.usersMapper = userMap
           this.membersData = data
         }
       }
@@ -218,6 +257,7 @@ export default class GroupDetail extends Vue {
       if (this.ownerData.uid === localStorage.getItem('uid')) {
         this.isOwner = true
       }
+      this.isCurrentUserAMember()
     })
   }
 
@@ -231,12 +271,25 @@ export default class GroupDetail extends Vue {
     return FirebaseService.searchByValueRef('/tasks', 'taskId', taskId).on('value', snapshot => {
       let response = snapshot.val()
       response = this.avoidIdObjectName(response)
+      if (response.owner.length) {
+        response['ownerUsername'] = this.findUsername(response.owner)
+      }
       let duplicateKey = _.find(data, { 'taskId': taskId })
       if (!duplicateKey) {
         data.push(response)
         this.tasksData = data
       }
     })
+  }
+
+  /**
+   * Checks if user is a member in the curret group, otherwise, redirect to dashboard
+   */
+  isCurrentUserAMember () {
+    if (!this.groupData.members.includes(this.currentUid)) {
+      this.$router.replace('/dashboard')
+      this.flash('You are not a member in this group', 'warning')
+    }
   }
 
   /**
@@ -272,5 +325,8 @@ export default class GroupDetail extends Vue {
 .no-data-tasks {
   color: #BDBDBD
   height: 100%
+}
+.dot {
+  height: 20px
 }
 </style>

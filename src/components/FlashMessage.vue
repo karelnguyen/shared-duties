@@ -26,7 +26,7 @@ import { Component, Vue } from 'vue-property-decorator'
 export default class FlashMessage extends Vue {
   show = false
   notifications = []
-  timeout = 10000
+  timeout = 3000
   flashTemp = null
 
   /**

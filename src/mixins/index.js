@@ -1,5 +1,11 @@
 import Vue from 'vue'
 import uuid from 'uuid/v4'
+import randomColor from 'randomcolor'
+import moment from 'moment'
+
+/**
+ * Mixins
+ */
 
 Vue.mixin({
   methods: {
@@ -60,6 +66,14 @@ Vue.mixin({
     },
 
     /**
+     * Generates random color
+     * @return {String}
+     */
+    generateRandomColor () {
+      return randomColor()
+    },
+
+    /**
      * Skip the first object property name
      * @param  {Object} obj
      * @return {Object}
@@ -103,4 +117,17 @@ Vue.mixin({
       return string.charAt(0).toLocaleLowerCase() + string.slice(1)
     }
   }
+})
+
+/**
+ * Filters
+ */
+
+/**
+* Format time and date (HH:mm:ss D. M. YYYY)
+* @param date {string}
+* @returns {string}
+*/
+Vue.filter('formatDate', (date) => {
+ return moment(date).format("D. M. YYYY")
 })

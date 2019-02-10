@@ -80,16 +80,30 @@ export default class DialogGroup extends Vue {
     if (this.$v.$invalid) {
       return
     }
+
     const groupId = this.generateRandomId()
     const ownerUid = localStorage.getItem('uid')
+    const color = this.generateRandomColor()
+
+    let data = {
+      groupId: groupId,
+      name: this.name,
+      owner: ownerUid,
+      members: [ownerUid],
+      colors: {
+        [ownerUid]: color
+      }
+    }
 
     if (!this.checkGroupName(this.name)) {
       this.forbiddenGroup = true
       this.flash(`Group ${this.name} already exist, please choose another name`, 'warning')
       return
+    } else {
+      this.forbiddenGroup = false
     }
-    this.forbiddenGroup = false
-    FirebaseService.createGroup(groupId, this.name, ownerUid)
+
+    FirebaseService.createGroup(groupId, data)
       .then(() => {
         this.closeDialog()
         this.flash(`Group ${this.name} succesfully created`, 'success')

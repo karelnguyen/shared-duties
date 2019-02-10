@@ -36,14 +36,9 @@ export default class DatePicker extends Vue {
   pickerDialog = false
   date = ''
 
-  // /**
-  //  * Save date data
-  //  * @param  {String} date
-  //  */
-  // saveDate (date) {
-  //   this.$refs.pickerDialog.save(date)
-  //   this.pickerDialog = false
-  // }
+  resetData () {
+    this.$data.date = ''
+  }
 
   /**
    * Watcher for date

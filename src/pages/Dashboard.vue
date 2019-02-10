@@ -2,7 +2,7 @@
   <v-container grid-list-sm>
     <v-tabs class="pb-1" dark left color="black" slider-color="red" v-model="tab">
       <v-tab
-        v-for="tabs in ['overview', 'calendar']"
+        v-for="tabs in ['overview']"
         :key="tabs"
         :href="`#tab-${tabs}`"
         >
@@ -41,7 +41,7 @@
                           My groups
                         </div>
                         <v-container grid-list-md>
-                          <v-layout row wrap>
+                          <v-layout row wrap v-if="ownGroups.length">
                             <v-flex xs3 v-for="oGroups in ownGroups" :key="oGroups.groupId">
                               <v-card class="group-card" hover @click="redirectToGroupDetail(oGroups.groupId, oGroups.name)">
                                 <v-card-title
@@ -55,10 +55,30 @@
                                   </v-layout>
                                 </v-card-title>
                                 <v-card-text>
-                                  {{oGroups.name}}
+                                  <v-layout row wrap justify-space-between>
+                                    <span class="ml-3">
+                                      <v-layout row wrap align-center v-if="oGroups.tasks">
+                                        <v-icon class="mr-2">assignment</v-icon>
+                                        <span class="subheading font-weight-bold">{{oGroups.tasks.length}}</span>
+                                      </v-layout>
+                                      <v-layout row wrap align-center v-else>
+                                        <v-icon class="mr-2">assignment</v-icon>
+                                        <span class="subheading font-weight-bold">0</span>
+                                      </v-layout>
+                                    </span>
+                                    <span class="mr-3">
+                                      <v-layout row wrap align-center v-if="oGroups.members">
+                                        <v-icon class="mr-2">people</v-icon>
+                                        <span class="subheading font-weight-bold">{{oGroups.members.length}}</span>
+                                      </v-layout>
+                                    </span>
+                                  </v-layout>
                                 </v-card-text>
                               </v-card>
                             </v-flex>
+                          </v-layout>
+                          <v-layout row wrap v-else justify-center>
+                            <span class="text-sm-center display-1 no-data-text">no data</span>
                           </v-layout>
                         </v-container>
                         <v-divider class="mt-4 mb-4"></v-divider>
@@ -66,7 +86,7 @@
                           I am a member of
                         </div>
                         <v-container grid-list-md>
-                          <v-layout row wrap>
+                          <v-layout row wrap v-if="foreignGroups.length">
                             <v-flex xs3 v-for="fGroups in foreignGroups" :key="fGroups.groupId">
                               <v-card class="group-card" hover @click="redirectToGroupDetail(fGroups.groupId, fGroups.name)">
                                 <v-card-title
@@ -80,10 +100,30 @@
                                   </v-layout>
                                 </v-card-title>
                                 <v-card-text>
-                                  {{fGroups.name}}
+                                  <v-layout row wrap justify-space-between>
+                                    <span class="ml-3">
+                                      <v-layout row wrap align-center v-if="fGroups.tasks">
+                                        <v-icon class="mr-2">assignment</v-icon>
+                                        <span class="subheading font-weight-bold">{{fGroups.tasks.length}}</span>
+                                      </v-layout>
+                                      <v-layout row wrap align-center v-else>
+                                        <v-icon class="mr-2">assignment</v-icon>
+                                        <span class="subheading font-weight-bold">0</span>
+                                      </v-layout>
+                                    </span>
+                                    <span class="mr-3">
+                                      <v-layout row wrap align-center v-if="fGroups.members">
+                                        <v-icon class="mr-2">people</v-icon>
+                                        <span class="subheading font-weight-bold">{{fGroups.members.length}}</span>
+                                      </v-layout>
+                                    </span>
+                                  </v-layout>
                                 </v-card-text>
                               </v-card>
                             </v-flex>
+                          </v-layout>
+                          <v-layout row wrap v-else justify-center>
+                            <span class="text-sm-center display-1 no-data-text">no data</span>
                           </v-layout>
                         </v-container>
                       </v-flex>
@@ -153,7 +193,7 @@
           value="tab-calendar"
         >
           <v-card flat>
-            <Calendar/>
+            <Calendar :tasksData="[]"/>
           </v-card>
         </v-tab-item>
 
@@ -276,5 +316,8 @@ export default class Dashboard extends Vue {
   }
   .foreign-group-title {
     border-bottom: 2px solid #1E88E5
+  }
+  .no-data-text {
+    color: #a7a8a7
   }
 </style>

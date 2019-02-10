@@ -1,19 +1,9 @@
 <template>
   <v-app id="app">
-    <v-toolbar app absolute flat dark color="black">
+    <v-toolbar app absolute flat dark color="black" class="elevation-11">
       <v-toolbar-title v-if="userSignedIn" class="toolbar-title toolbar-title-access" @click="$router.replace('/dashboard')"><v-icon class="mr-2">dashboard</v-icon>Dashboard</v-toolbar-title>
       <v-toolbar-title v-else class="toolbar-title">Shared Duties</v-toolbar-title>
       <v-spacer></v-spacer>
-      <v-toolbar-items v-if="userSignedIn">
-        <v-menu offset-y>
-          <v-icon large slot="activator" fab color="white">account_circle</v-icon>
-          <v-list>
-            <v-list-tile>
-              <v-list-tile-title>Settings</v-list-tile-title>
-            </v-list-tile>
-          </v-list>
-        </v-menu>
-      </v-toolbar-items>
       <div class="ml-3">
       <v-btn v-if="userSignedIn" color="error" dark @click="signOut">sign out</v-btn>
       </div>
@@ -46,7 +36,7 @@ export default class App extends Vue {
    */
   created () {
     /**
-     * Auth observer checks if user is signed in, otherwise it will redirect to Home Page
+     * Auth observer checks if user is signed in
      */
     FirebaseService.authRequest().onAuthStateChanged(user => {
       if (!user) {
