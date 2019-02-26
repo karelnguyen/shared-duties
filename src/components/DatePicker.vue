@@ -36,6 +36,13 @@ export default class DatePicker extends Vue {
   pickerDialog = false
   date = ''
 
+  mounted () {
+    this.resetData()
+  }
+
+  /**
+   * Reset input data
+   */
   resetData () {
     this.$data.date = ''
   }

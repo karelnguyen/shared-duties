@@ -129,5 +129,5 @@ Vue.mixin({
 * @returns {string}
 */
 Vue.filter('formatDate', (date) => {
- return moment(date).format("D. M. YYYY")
+  return moment(date).format('D. M. YYYY')
 })

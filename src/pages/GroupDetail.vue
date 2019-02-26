@@ -19,56 +19,7 @@
             class="mt-5 mb-5"
           ></v-progress-circular>
           <v-layout row wrap v-else>
-            <v-flex v-if="!tasksData.length">
-              <v-layout class="no-data-tasks" row wrap align-center justify-center>
-                <v-card-text>
-                    <span class="display-3">no tasks</span>
-                </v-card-text>
-              </v-layout>
-            </v-flex>
-            <v-flex xs9 v-else>
-              <v-card-text>
-                <v-layout column wrap>
-                  <v-layout row wrap align-center class="mb-3">
-                    <v-icon class="mr-3">assignment</v-icon>
-                    <span class="headline font-weight-bold">Tasks</span>
-                  </v-layout>
-                  <v-container grid-list-md>
-                    <v-layout row wrap justify-start>
-                      <v-flex xs4 v-for="task in tasksData" :key="task.taskId">
-                        <v-card>
-                          <v-card-title class="subheading font-weight-bold grey lighten-2">
-                            <span>{{task.name}}</span>
-                          </v-card-title>
-                          <v-divider></v-divider>
-                          <v-card-text class="text-sm-left mt-2 font-weight-bold">
-                            <v-layout row wrap align-center class="mb-2">
-                              <div class="text-truncate">
-                                <v-icon class="mr-3">description</v-icon>{{task.description}}
-                              </div>
-                            </v-layout>
-                            <v-layout row wrap align-center class="mb-2">
-                              <v-icon class="mr-3">offline_bolt</v-icon>{{task.rating}}
-                            </v-layout>
-                            <v-layout row wrap align-center class="mb-2" v-if="task.date">
-                              <v-icon class="mr-3">event</v-icon>{{task.date | formatDate}}
-                            </v-layout>
-                            <v-layout row wrap align-center class="mb-2" v-if="task.owner">
-                              <v-icon
-                                :color="groupData.colors[task.owner]"
-                                class="mr-3">account_box
-                              </v-icon>
-                              <span>{{task.ownerUsername}}</span>
-                            </v-layout>
-                          </v-card-text>
-                        </v-card>
-                      </v-flex>
-                    </v-layout>
-                  </v-container>
-                </v-layout>
-              </v-card-text>
-            </v-flex>
-            <v-flex xs3>
+            <v-flex xs12 xl3>
               <v-card-text>
                 <v-layout row wrap align-center class="mb-4">
                   <v-icon class="mr-3">info</v-icon>
@@ -103,20 +54,69 @@
                     </div>
                     <div>
                       <div
-                        class="subheading font-weight-bold"
-                        v-for="member in membersData"
-                        :key="member.uid">
-                        <span v-if="member.username !== ownerData.username">
-                          <span class="mr-4">{{member.username}}</span>
-                          <span :style="`color: ${groupData.colors[member.uid]}`">&#11044;</span>
-                        </span>
-                        <v-divider></v-divider>
-                      </div>
+                      class="subheading font-weight-bold"
+                      v-for="member in membersData"
+                      :key="member.uid">
+                      <span v-if="member.username !== ownerData.username">
+                        <span class="mr-4">{{member.username}}</span>
+                        <span :style="`color: ${groupData.colors[member.uid]}`">&#11044;</span>
+                      </span>
+                      <v-divider></v-divider>
                     </div>
-                  </v-flex>
+                  </div>
+                </v-flex>
+              </v-layout>
+            </v-card-text>
+            </v-flex>
+            <v-flex v-if="!tasksData.length">
+              <v-layout class="no-data-tasks" row wrap align-center justify-center>
+                <v-card-text>
+                    <span class="display-3">no tasks</span>
+                </v-card-text>
+              </v-layout>
+            </v-flex>
+            <v-flex xs12 xl9 v-else>
+              <v-card-text>
+                <v-layout column wrap>
+                  <v-layout row wrap align-center class="mb-3">
+                    <v-icon class="mr-3">assignment</v-icon>
+                    <span class="headline font-weight-bold">Tasks</span>
+                  </v-layout>
+                  <v-container grid-list-md>
+                    <v-layout row wrap justify-start>
+                      <v-flex xs12 md6 lg4 v-for="task in tasksData" :key="task.taskId">
+                        <v-card>
+                          <v-card-title class="subheading font-weight-bold grey lighten-2">
+                            <span>{{task.name}}</span>
+                          </v-card-title>
+                          <v-divider></v-divider>
+                          <v-card-text class="text-sm-left mt-2 font-weight-bold">
+                            <v-layout row wrap align-center class="mb-2">
+                              <div class="text-truncate">
+                                <v-icon class="mr-3">description</v-icon>{{task.description}}
+                              </div>
+                            </v-layout>
+                            <v-layout row wrap align-center class="mb-2">
+                              <v-icon class="mr-3">offline_bolt</v-icon>{{task.rating}}
+                            </v-layout>
+                            <v-layout row wrap align-center class="mb-2" v-if="task.date">
+                              <v-icon class="mr-3">event</v-icon>{{task.date | formatDate}}
+                            </v-layout>
+                            <v-layout row wrap align-center class="mb-2" v-if="task.owner">
+                              <v-icon
+                                :color="groupData.colors[task.owner]"
+                                class="mr-3">account_box
+                              </v-icon>
+                              <span>{{task.ownerUsername}}</span>
+                            </v-layout>
+                          </v-card-text>
+                        </v-card>
+                      </v-flex>
+                    </v-layout>
+                  </v-container>
                 </v-layout>
               </v-card-text>
-          </v-flex>
+            </v-flex>
           </v-layout>
           <v-spacer></v-spacer>
           <v-divider></v-divider>
@@ -133,7 +133,11 @@
           </v-card-title>
           <v-divider></v-divider>
           <v-card-text>
-            <Calendar :tasksData="tasksData"/>
+            <Calendar
+              :groupData="groupData"
+              :tasksData="tasksData"
+              :findUsername="findUsername"
+            />
           </v-card-text>
         </v-card>
       </v-flex>
@@ -210,6 +214,11 @@ export default class GroupDetail extends Vue {
     })
   }
 
+  /**
+   * Find user name by uid in members data
+   * @param  {String} uid
+   * @return {String}
+   */
   findUsername (uid) {
     let username = ''
     this.membersData.find(el => {
@@ -267,6 +276,7 @@ export default class GroupDetail extends Vue {
    * @return {Promise}
    */
   getTaskData (taskId) {
+    this.loading = true
     let data = this.tasksData
     return FirebaseService.searchByValueRef('/tasks', 'taskId', taskId).on('value', snapshot => {
       let response = snapshot.val()
@@ -279,6 +289,7 @@ export default class GroupDetail extends Vue {
         data.push(response)
         this.tasksData = data
       }
+      this.loading = false
     })
   }
 

@@ -40,7 +40,7 @@
             label="Assign to"
             prepend-icon="account_box"
           ></v-select>
-          <span class="complexity-text">Task complexity</span>
+          <v-subheader class="px-0"><v-icon class="mr-2">offline_bolt</v-icon>Task complexity</v-subheader>
           <v-rating
             v-model="ratingData.rating"
             full-icon="offline_bolt"
@@ -131,6 +131,7 @@ export default class DialogTask extends Vue {
       })
     })
     this.members = members
+    console.log(JSON.parse(JSON.stringify(members)));
     members.map(member => this.assignSelect.push(member.username))
   }
 
@@ -171,12 +172,28 @@ export default class DialogTask extends Vue {
     FirebaseService.createTask(taskId, data)
       .then(() => {
         this.addTaskIdToGroupData(this.groupData.groupId, taskId)
+        if (data.owner !== '') {
+          this.addTaskIdToUserData(data.owner, taskId)
+        }
         this.$refs.datePicker.resetData()
         this.flash('Task succesfully added', 'success')
       })
       .catch(err => {
         this.flash(err.message, 'success')
+        this.$refs.datePicker.resetData()
       })
+  }
+
+  addTaskIdToUserData (uid, taskId) {
+    let data = this.members.find(member => member.uid === uid)
+    console.log(data)
+    if (!data.tasks) {
+      data['tasks'] = []
+      data['tasks'].push(taskId)
+    } else {
+      data['tasks'].push(taskId)
+    }
+    FirebaseService.updateUser(uid, data)
   }
 
   /**

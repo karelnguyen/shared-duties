@@ -74,7 +74,7 @@ export default class App extends Vue {
   background-image: url('./assets/bg.png');
   background-repeat: no-repeat;
   background-position: contain;
-  background-size: 100vw;
+  background-size: cover;
   background-attachment: fixed
 }
 .toolbar-title {

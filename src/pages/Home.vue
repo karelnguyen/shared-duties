@@ -1,8 +1,8 @@
 <template>
   <v-layout column wrap justify-center align-center class="home-page">
-    <h1 class="display-4">Shared Duties</h1>
-    <v-btn dark color="primary" @click="$router.push({name: 'login'})">Sign in</v-btn>
-    <v-btn dark color="primary" @click="$router.push({name: 'signup'})">Sign up</v-btn>
+    <h1 class="display-4 mb-5">Shared Duties</h1>
+    <v-btn dark outline color="white" @click="$router.push({name: 'login'})">Sign in</v-btn>
+    <v-btn dark outline color="white" @click="$router.push({name: 'signup'})">Sign up</v-btn>
   </v-layout>
 </template>
 

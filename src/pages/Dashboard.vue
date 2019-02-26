@@ -42,7 +42,7 @@
                         </div>
                         <v-container grid-list-md>
                           <v-layout row wrap v-if="ownGroups.length">
-                            <v-flex xs3 v-for="oGroups in ownGroups" :key="oGroups.groupId">
+                            <v-flex xs12 lg3 v-for="oGroups in ownGroups" :key="oGroups.groupId">
                               <v-card class="group-card" hover @click="redirectToGroupDetail(oGroups.groupId, oGroups.name)">
                                 <v-card-title
                                   class="subheading black lighten-4"

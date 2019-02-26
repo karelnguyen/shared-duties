@@ -30,7 +30,7 @@
           outline
           class="login-input"
         ></v-text-field>
-        <v-btn color="blue"  round @click="signIn(email, password)">Sign in</v-btn>
+        <v-btn color="blue" dark round @click="signIn(email, password)">Sign in</v-btn>
         <p class="font-color">
           Did not register yet? <v-btn  flat @click="$router.push({name: 'signup'})">Sign up</v-btn>
         </p>
