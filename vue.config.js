@@ -6,5 +6,6 @@ module.exports = {
         '@': path.resolve(__dirname, 'src/')
       }
     }
-  }
+  },
+  publicPath: '<shared-duties>'
 }
