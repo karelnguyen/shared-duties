@@ -1,5 +1,6 @@
 # shared-duties
-
+Purpose of this app is to let users create tasks and assign it to members within a closed group. 
+This project is mainly for showcase only
 ## Project setup
 ```
 yarn install
