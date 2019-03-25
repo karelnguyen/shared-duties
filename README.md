@@ -1,6 +1,6 @@
 # shared-duties
 Purpose of this app is to let users create tasks and assign it to members within a closed group.
-This project is mainly for showcase only
+This project is for showcase only, no intention of future development.
 
 ## Project structure
 * **<root>/**
