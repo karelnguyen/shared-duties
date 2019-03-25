@@ -13,7 +13,7 @@ This project is mainly for showcase only
     * **pages/** - *main layout components*
     * **router/** - *app routing*
     * **plugins/** - *vue-cli plugins*
-    * **services/** - *Basically requests, in this situation firebase requests*
+    * **services/** - *basically requests, in this situation firebase requests*
     * **main.js** - *main js file*
 
 ## Project setup
